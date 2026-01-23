@@ -1,0 +1,4 @@
+*.gpg filter=lfs diff=lfs merge=lfs -text
+*.zip.gpg filter=lfs diff=lfs merge=lfs -text
+*.7z.gpg filter=lfs diff=lfs merge=lfs -text
+*.enc filter=lfs diff=lfs merge=lfs -text
