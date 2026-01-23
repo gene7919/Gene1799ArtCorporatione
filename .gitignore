@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿# Node.js
 **/node_modules/
 npm-debug.log*
@@ -20,3 +21,17 @@ report-*.json
 # OS generated
 .DS_Store
 Thumbs.db
+=======
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+.env
+.venv
+env/
+*.log
+.DS_Store
+>>>>>>> 91e3ea164c96ba0eb153e5b0a00d5fd729ffb64a

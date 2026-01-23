@@ -1,7 +1,7 @@
 {
   "name": "drug-discovery",
   "version": "1.0.0",
-  "description": "",
+  "description": "Integrated AI and NFT project - Sistema integrato con API multiple (OpenAI, Perplexity, Ollama, Stable Diffusion), marketplace NFT (Zora, SuperRare) e deployment automation",
   "main": "drug-discovery-engine.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,11 +11,22 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@abandonware/noble": "^1.9.2-26",
     "@google-cloud/aiplatform": "^6.1.0",
     "@google-cloud/life-sciences": "^4.2.1",
     "@google-cloud/storage": "^7.18.0",
+    "bluetooth-hci-socket": "^0.5.1",
     "canvas": "^3.2.1",
     "chart.js": "^4.5.1",
+    "noble": "^1.9.1",
     "pdfkit": "^0.17.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gene7919/Gene1799ArtCorporatione.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gene7919/Gene1799ArtCorporatione/issues"
+  },
+  "homepage": "https://github.com/gene7919/Gene1799ArtCorporatione#readme"
 }
