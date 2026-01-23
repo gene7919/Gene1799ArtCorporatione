@@ -1,0 +1,50 @@
+﻿{
+  "chelanti_rame": [
+    {
+      "nome": "Tetratiomolibdato (ATTM)",
+      "smiles": "[Mo](S)(S)(S)S",
+      "target": "Cu2+",
+      "meccanismo": "Blocca angiogenesi tumorale",
+      "dosaggio": "120-180 mg/die",
+      "efficacia": 0.75
+    },
+    {
+      "nome": "TEPA",
+      "smiles": "NCCNCCNCCNCCN",
+      "target": "Riduce PD-L1",
+      "meccanismo": "Potenzia immunoterapia",
+      "dosaggio": "Variabile",
+      "efficacia": 0.82
+    }
+  ],
+  "chelanti_ferro": [
+    {
+      "nome": "Deferoxamina",
+      "smiles": "CC(=O)N(O)CCCCCNC(=O)CCC(=O)N(O)CCCCCNC(=O)CCC(=O)N(O)CCCCCN",
+      "target": "Fe3+",
+      "meccanismo": "Priva cellule tumorali di ferro",
+      "dosaggio": "20-60 mg/kg/die",
+      "efficacia": 0.71
+    }
+  ],
+  "agenti_ossidanti": [
+    {
+      "nome": "Vitamina C (Acido Ascorbico)",
+      "smiles": "OCC(O)C1OC(=O)C(O)=C1O",
+      "target": "Cellule tumorali KRAS mutate",
+      "meccanismo": "Pro-ossidante, genera H2O2",
+      "dosaggio": "1.5-2 g/kg IV",
+      "efficacia": 0.79
+    }
+  ],
+  "complessi_metallici": [
+    {
+      "nome": "NAMI-A (Rutenio)",
+      "smiles": "[Ru]",
+      "target": "Metastasi tumorali",
+      "meccanismo": "Inibisce invasione cellulare",
+      "dosaggio": "Fase clinica",
+      "efficacia": 0.84
+    }
+  ]
+}

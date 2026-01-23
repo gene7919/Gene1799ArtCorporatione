@@ -1,0 +1,22 @@
+{
+  "name": "gene1799-drug-discovery",
+  "version": "1.0.0",
+  "description": "Gene1799 AI Drug Discovery Platform",
+  "main": "index.js",
+  "scripts": {
+    "healthcare": "node healthcare-integration.js",
+    "chelation": "node chelation-calculator/chelation-calculator.js",
+    "anticancer": "node anticancer-engine-v2.js",
+    "copilot": "node copilot-agent/copilot-drug-discovery.js"
+  },
+  "dependencies": {
+    "@github/copilot-sdk": "^0.1.15",
+    "@google-cloud/life-sciences": "^4.2.1",
+    "axios": "^1.13.2",
+    "cheerio": "^1.1.2",
+    "dotenv": "^17.2.3",
+    "fs-extra": "^11.3.3",
+    "googleapis": "^128.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}

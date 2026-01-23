@@ -1,0 +1,8 @@
+﻿{
+  "chelanti": [
+    {"nome": "Tetratiomolibdato (ATTM)", "smiles": "[Mo](S)(S)(S)S", "targets": ["Cu2+", "Fe3+"], "azioni": ["anti-cancro","anti-fragilità","anti-esplosione"], "efficacia": 0.75},
+    {"nome": "D-Penicillamina", "smiles": "C(CS)N(C)C(=O)O", "targets": ["Cu2+"], "azioni": ["anti-cancro","anti-fragilità"], "efficacia": 0.6},
+    {"nome": "EDTA", "smiles": "C(C(=O)O)N(CC(=O)O)CC(=O)O", "targets": ["Ca2+", "Mg2+", "Fe3+", "Pb2+"], "azioni": ["anti-esplosione","anti-fragilità"], "efficacia": 0.65},
+    {"nome": "Desferroxamina", "smiles": "C1CC(C(C(C1)N)O)N(C)C(=O)O", "targets": ["Fe3+"], "azioni": ["anti-cancro","anti-fragilità"], "efficacia": 0.7}
+  ]
+}
