@@ -4,25 +4,22 @@
     "dev": "nodemon server.js"
   },
   "engines": {
-    "node": "20.x"
+    "node": ">=18.0.0"
   },
   "dependencies": {
-    "socket.io": "4.6.0",
-    "lodash": "4.17.21",
-    "technical-indicators": "3.1.0",
-    "cors": "2.8.5",
-    "compression": "1.7.4",
-    "axios": "1.6.2",
-    "helmet": "7.1.0",
-    "ccxt": "4.2.5",
-    "express-slow-down": "2.0.1",
-    "moment": "2.30.0",
-    "express-rate-limit": "7.1.5",
-    "uuid": "9.0.1",
-    "express": "4.19.2"
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.1.5",
+    "express-slow-down": "^2.0.3",
+    "helmet": "^7.1.0",
+    "lodash": "^4.17.21",
+    "moment": "^2.30.0",
+    "socket.io": "^4.6.0",
+    "uuid": "^9.0.1"
   },
-  "version": "8.5.0",
-  "name": "gene1799-art-corporatione",
-  "description": "Gene1799 - Complete AI Hub with Workflows & Batch Operations",
+  "version": "9.0.0",
+  "name": "gene1799-unified-backend",
+  "description": "Gene1799 ART CORPORATIONE - Production Server",
   "main": "server.js"
 }
