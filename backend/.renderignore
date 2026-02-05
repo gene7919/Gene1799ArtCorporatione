@@ -1,0 +1,7 @@
+# Render ignore file
+node_modules/
+*.log
+*.backup
+*.bak
+.env
+.DS_Store
