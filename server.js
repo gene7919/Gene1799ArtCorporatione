@@ -15,19 +15,18 @@ const server = http.createServer(app);
 const io = socketIo(server, { cors: { origin: '*' } });
 
 const PORT = process.env.PORT || 3000;
+const VERSION = '9.0.0';
 
 // ========================================
 // SECURITY MIDDLEWARE
 // ========================================
+app.set('trust proxy', 1);
+
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"]
-    }
-  }
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false
 }));
+
 app.use(compression());
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -50,33 +49,36 @@ function isIPInRange(ip, range) {
 const TARGET_RANGES = ['74.220.48.0/24', '74.220.56.0/24'];
 
 // ========================================
-// RATE LIMITING
+// RATE LIMITING (FIXED)
 // ========================================
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
   message: { error: 'Too many requests' },
   skip: (req) => {
-    const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress).split(',')[0];
+    const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0];
     return TARGET_RANGES.some(r => isIPInRange(ip, r));
   }
 });
 
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 60,
+  max: 300,
   message: { error: 'API rate limit exceeded' }
 });
 
 const createLimiter = rateLimit({
   windowMs: 3600 * 1000,
-  max: 10,
+  max: 100,
   message: { error: 'Creation limit exceeded' }
 });
 
+// FIXED: express-slow-down v2.0.3
 const speedLimiter = slowDown({
   windowMs: 15 * 60 * 1000,
-  delayAfter: 50,
+  delayAfter: 100,
   delayMs: (used, req) => {
     const delayAfter = req.slowDown.limit;
     return (used - delayAfter) * 500;
@@ -88,26 +90,21 @@ app.use(globalLimiter);
 app.use(speedLimiter);
 
 // ========================================
-// SECURITY HEADERS & IP LOGGING
+// IP LOGGING
 // ========================================
 app.use((req, res, next) => {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Strict-Transport-Security', 'max-age=31536000');
-  
-  const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress).split(',')[0].trim();
+  const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
   const inTarget = TARGET_RANGES.some(r => isIPInRange(ip, r));
   const cfRay = req.headers['cf-ray'];
   const cfCountry = req.headers['cf-ipcountry'];
-  
+
   const icon = inTarget ? '🎯' : (cfRay ? '☁️' : '📍');
   const cfInfo = cfRay ? ` | CF: ${cfRay} | ${cfCountry}` : '';
-  
+
   console.log(`${icon} ${req.method.padEnd(6)} ${req.path.padEnd(30)} | IP: ${ip}${cfInfo}`);
-  
+
   if (inTarget) db.metrics.targetIPHits++;
-  
+
   next();
 });
 
@@ -118,7 +115,6 @@ class Database {
   constructor() {
     this.agents = new Map();
     this.nfts = new Map();
-    this.tasks = [];
     this.workflows = [];
     this.metrics = {
       requests: 0,
@@ -128,12 +124,11 @@ class Database {
       tasksExecuted: 0,
       nftsCreated: 0,
       workflowsCompleted: 0,
-      batchOperations: 0,
       startTime: Date.now()
     };
     this.initAgents();
   }
-  
+
   initAgents() {
     const categories = ['VIDEO', 'ART', 'TRADING', 'MUSIC', 'LEARNING'];
     const capabilities = {
@@ -143,10 +138,10 @@ class Database {
       MUSIC: ['music_generation', 'mixing', 'mastering'],
       LEARNING: ['training', 'optimization', 'research']
     };
-    
+
     for (let i = 0; i < 500; i++) {
       const category = categories[i % 5];
-      const agent = {
+      this.agents.set(`GAC_${i.toString().padStart(4, '0')}`, {
         id: `GAC_${i.toString().padStart(4, '0')}`,
         name: `${category}_AGENT_${i}`,
         category,
@@ -162,12 +157,11 @@ class Database {
         },
         created: moment().subtract(Math.floor(Math.random() * 90), 'days').toISOString(),
         lastActive: moment().subtract(Math.floor(Math.random() * 24), 'hours').toISOString()
-      };
-      this.agents.set(agent.id, agent);
+      });
     }
     console.log(`✅ Initialized ${this.agents.size} agents`);
   }
-  
+
   getMetrics() {
     return {
       ...this.metrics,
@@ -193,30 +187,19 @@ app.use((req, res, next) => {
 class BatchOperations {
   static async createAgentsBatch(count, template = {}) {
     const agents = [];
-    const categories = ['VIDEO', 'ART', 'TRADING', 'MUSIC', 'LEARNING'];
-    
     for (let i = 0; i < count; i++) {
-      const category = template.category || categories[i % 5];
       const agent = {
         id: `AGT_${uuidv4()}`,
         name: template.name || `BatchAgent_${Date.now()}_${i}`,
-        category,
+        category: template.category || 'GENERAL',
         status: 'active',
         efficiency: 85,
-        capabilities: template.capabilities || ['automation'],
-        stats: {
-          tasksCompleted: 0,
-          successRate: 100,
-          avgResponseTime: 1000,
-          nftsCreated: 0
-        },
-        created: new Date().toISOString(),
-        lastActive: new Date().toISOString()
+        stats: { tasksCompleted: 0, successRate: 100, avgResponseTime: 1000 },
+        created: new Date().toISOString()
       };
-      
       db.agents.set(agent.id, agent);
       agents.push(agent);
-      
+
       if ((i + 1) % 10 === 0) {
         io.emit('batch-progress', {
           type: 'agents',
@@ -226,20 +209,17 @@ class BatchOperations {
         });
       }
     }
-    
-    db.metrics.batchOperations++;
     return agents;
   }
-  
+
   static async createNFTsBatch(count, template = {}) {
     const nfts = [];
-    
     for (let i = 0; i < count; i++) {
       const nft = {
         id: `NFT_${uuidv4()}`,
         name: template.name || `BatchNFT_${Date.now()}_${i}`,
         description: template.description || 'Batch created NFT',
-        imageUrl: template.imageUrl || `/generated/batch_${i}.png`,
+        imageUrl: `/generated/batch_${i}.png`,
         tokenId: Math.floor(Math.random() * 1000000),
         blockchain: template.blockchain || 'Ethereum',
         marketplace: template.marketplace || 'custom',
@@ -247,22 +227,10 @@ class BatchOperations {
         status: 'minted',
         created: new Date().toISOString()
       };
-      
       db.nfts.set(nft.id, nft);
       nfts.push(nft);
       db.metrics.nftsCreated++;
-      
-      if ((i + 1) % 5 === 0) {
-        io.emit('batch-progress', {
-          type: 'nfts',
-          progress: Math.round(((i + 1) / count) * 100),
-          created: i + 1,
-          total: count
-        });
-      }
     }
-    
-    db.metrics.batchOperations++;
     return nfts;
   }
 }
@@ -275,17 +243,15 @@ app.get('/', (req, res) => {
     name: 'GENE1799 ART CORPORATIONE v9.0',
     domain: 'gene1799artcorporatione.mom',
     status: 'PRODUCTION',
-    version: '9.0.0',
+    version: VERSION,
     features: [
       'DDoS Protection (Cloudflare + Express)',
       'Rate Limiting Multi-Layer',
-      'IP Whitelisting',
+      'IP Whitelisting (74.220.48/56.0/24)',
       '500 AI Agents',
+      'Batch Operations (Agents/NFTs)',
       'WebSocket Real-time',
       'NFT Management',
-      'Batch Operations',
-      'AI Workflows',
-      'Crypto Trading Simulator',
       'Advanced Analytics'
     ],
     endpoints: {
@@ -295,12 +261,8 @@ app.get('/', (req, res) => {
       nfts: '/api/nft',
       nftsBatch: '/api/nft/batch-create',
       metrics: '/api/metrics',
-      ipStats: '/api/ip-stats'
-    },
-    protection: {
-      cloudflare: 'Enabled',
-      rateLimit: 'Active',
-      ipWhitelist: TARGET_RANGES
+      ipStats: '/api/ip-stats',
+      security: '/api/security-status'
     }
   });
 });
@@ -308,7 +270,7 @@ app.get('/', (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
-    version: '9.0.0',
+    version: VERSION,
     timestamp: new Date().toISOString(),
     metrics: db.getMetrics()
   });
@@ -328,24 +290,38 @@ app.get('/api/ip-stats', (req, res) => {
   });
 });
 
+app.get('/api/security-status', (req, res) => {
+  res.json({
+    success: true,
+    protection: {
+      ddos: 'Cloudflare + Express Rate Limit',
+      rateLimit: {
+        global: '1000 req/15min',
+        api: '300 req/min',
+        create: '100 req/hour'
+      },
+      ipWhitelist: TARGET_RANGES
+    },
+    cloudflare: {
+      enabled: !!req.headers['cf-ray'],
+      ray: req.headers['cf-ray'],
+      country: req.headers['cf-ipcountry']
+    }
+  });
+});
+
 app.get('/api/agents', apiLimiter, (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 25;
-  const category = req.query.category;
-  
   let agents = Array.from(db.agents.values());
-  
-  if (category) agents = agents.filter(a => a.category === category.toUpperCase());
-  
+  if (req.query.category) agents = agents.filter(a => a.category === req.query.category.toUpperCase());
   const start = (page - 1) * limit;
-  const paginated = agents.slice(start, start + limit);
-  
   res.json({
     success: true,
     total: agents.length,
     page,
     limit,
-    agents: paginated
+    agents: agents.slice(start, start + limit)
   });
 });
 
@@ -356,10 +332,8 @@ app.post('/api/agents/create', createLimiter, (req, res) => {
     category: req.body.category || 'GENERAL',
     status: 'active',
     efficiency: 85,
-    capabilities: req.body.capabilities || ['automation'],
-    stats: { tasksCompleted: 0, successRate: 100, avgResponseTime: 1000, nftsCreated: 0 },
-    created: new Date().toISOString(),
-    lastActive: new Date().toISOString()
+    stats: { tasksCompleted: 0, successRate: 100, avgResponseTime: 1000 },
+    created: new Date().toISOString()
   };
   db.agents.set(agent.id, agent);
   io.emit('agent-created', agent);
@@ -369,10 +343,7 @@ app.post('/api/agents/create', createLimiter, (req, res) => {
 app.post('/api/agents/batch-create', createLimiter, async (req, res) => {
   try {
     const count = Math.min(req.body.count || 10, 100);
-    const template = req.body.template || {};
-    
-    const agents = await BatchOperations.createAgentsBatch(count, template);
-    
+    const agents = await BatchOperations.createAgentsBatch(count, req.body.template || {});
     res.json({
       success: true,
       created: agents.length,
@@ -402,7 +373,6 @@ app.post('/api/nft/create', createLimiter, (req, res) => {
     status: 'minted',
     created: new Date().toISOString()
   };
-  
   db.nfts.set(nft.id, nft);
   db.metrics.nftsCreated++;
   io.emit('nft-created', nft);
@@ -412,10 +382,7 @@ app.post('/api/nft/create', createLimiter, (req, res) => {
 app.post('/api/nft/batch-create', createLimiter, async (req, res) => {
   try {
     const count = Math.min(req.body.count || 5, 50);
-    const template = req.body.template || {};
-    
-    const nfts = await BatchOperations.createNFTsBatch(count, template);
-    
+    const nfts = await BatchOperations.createNFTsBatch(count, req.body.template || {});
     res.json({
       success: true,
       created: nfts.length,
@@ -432,18 +399,14 @@ app.post('/api/nft/batch-create', createLimiter, async (req, res) => {
 // ========================================
 io.on('connection', (socket) => {
   db.metrics.activeConnections++;
-  console.log(`✅ WebSocket connected: ${socket.id} (Total: ${db.metrics.activeConnections})`);
-  
-  socket.emit('welcome', { 
-    version: '9.0.0', 
-    agents: db.agents.size,
-    features: ['batch-operations', 'workflows', 'crypto-analysis']
-  });
-  
+  console.log(`✅ WebSocket: ${socket.id} (Total: ${db.metrics.activeConnections})`);
+
+  socket.emit('welcome', { version: VERSION, agents: db.agents.size });
+
   const interval = setInterval(() => {
     socket.emit('metrics-update', db.getMetrics());
   }, 5000);
-  
+
   socket.on('disconnect', () => {
     db.metrics.activeConnections--;
     clearInterval(interval);
@@ -456,7 +419,17 @@ io.on('connection', (socket) => {
 app.use((err, req, res, next) => {
   db.metrics.errors++;
   console.error('Error:', err.message);
-  res.status(500).json({ error: 'Internal server error' });
+  res.status(500).json({ error: 'Internal server error', message: err.message });
+});
+
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, closing...');
+  server.close(() => process.exit(0));
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, closing...');
+  server.close(() => process.exit(0));
 });
 
 // ========================================
@@ -464,7 +437,7 @@ app.use((err, req, res, next) => {
 // ========================================
 server.listen(PORT, '0.0.0.0', () => {
   console.log('\n╔══════════════════════════════════════════════════╗');
-  console.log('║  GENE1799 ART CORPORATIONE v9.0 - LIVE SERVER   ║');
+  console.log('║  GENE1799 ART CORPORATIONE v9.0 - PRODUCTION    ║');
   console.log('╚══════════════════════════════════════════════════╝\n');
   console.log(`🚀 Server:      http://0.0.0.0:${PORT}`);
   console.log(`🤖 Agents:      ${db.agents.size} loaded`);
@@ -472,4 +445,3 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`🌐 WebSocket:   ENABLED`);
   console.log(`🎯 Whitelist:   74.220.48.0/24, 74.220.56.0/24\n`);
 });
-

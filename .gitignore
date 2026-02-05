@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+package-lock.json
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.production
+*.env
+
+# Logs
+logs/
+*.log
+
+# Database
+database/*.db
+*.sqlite*
+
+# Build
+build/
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Uploads
+uploads/
+generated/
+temp/
+
+# Backups
+*.bak
+*.backup
+*.backup_*
+
+# User files
+NTUSER.DAT*
+ntuser.dat*
+Cookies/
+AppData/
