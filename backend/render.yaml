@@ -1,0 +1,57 @@
+# GENE1799 RENDER.COM CONFIGURATION
+services:
+  - type: web
+    name: gene1799-unified-backend
+    runtime: node
+    region: frankfurt
+    plan: free
+    buildCommand: npm install --production
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      - key: PORT
+        value: 10000
+
+      - key: JWT_SECRET
+        generateValue: true
+
+      - key: SESSION_SECRET
+        generateValue: true
+
+      - key: OPENAI_API_KEY
+        sync: false
+
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+      - key: ETHEREUM_RPC_URL
+        sync: false
+
+      - key: ZORA_API_KEY
+        sync: false
+
+      - key: OPENSEA_API_KEY
+        sync: false
+
+      - key: BINANCE_API_KEY
+        sync: false
+
+      - key: BINANCE_API_SECRET
+        sync: false
+
+      - key: CORS_ORIGIN
+        value: "*"
+
+      - key: RATE_LIMIT_MAX
+        value: 1000
+
+# Disk for database
+volumes:
+  - name: gene1799-data
+    mount: /app/database
+    sizeGB: 1
