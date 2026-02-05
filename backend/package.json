@@ -1,30 +1,24 @@
 ﻿{
-  "name": "gene1799-hub",
-  "version": "9.1.0",
-  "description": "Gene1799 Art Corporatione - AI Multi-Agent Backend",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
-  },
-  "keywords": ["gene1799", "ai", "agents", "nft", "crypto"],
-  "author": "Gene1799 Art Corporatione",
-  "license": "MIT",
-  "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "helmet": "^7.1.0",
-    "compression": "^1.7.4",
-    "socket.io": "^4.7.5",
-    "express-rate-limit": "^7.1.5",
-    "express-slow-down": "^2.0.1",
-    "uuid": "^9.0.1",
-    "lodash": "^4.17.21",
-    "moment": "^2.30.1",
-    "node-cron": "^3.0.3"
-  }
+    "name":  "gene1799-hub",
+    "version":  "9.1.0",
+    "main":  "server.js",
+    "scripts":  {
+                    "start":  "node server.js",
+                    "dev":  "nodemon server.js"
+                },
+    "dependencies":  {
+                         "express":  "^4.19.2",
+                         "cors":  "^2.8.5",
+                         "helmet":  "^7.3.0",
+                         "compression":  "^1.7.4",
+                         "socket.io":  "^4.8.0",
+                         "express-rate-limit":  "^7.4.0",
+                         "uuid":  "^10.0.0",
+                         "lodash":  "^4.17.21",
+                         "moment":  "^2.30.1",
+                         "winston":  "^3.14.2"
+                     },
+    "engines":  {
+                    "node":  "\u003e=18.0.0"
+                }
 }
