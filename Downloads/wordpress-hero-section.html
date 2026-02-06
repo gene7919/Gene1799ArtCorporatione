@@ -1,0 +1,384 @@
+<!-- 
+  ████████████████████████████████████████████████████████
+  █ GENE1799 ART CORPORATIONE - WordPress Hero Section   █
+  █ Integra questo codice tramite:                        █
+  █  1. Plugin WPCode > Custom Snippet (HTML)             █
+  █  2. Oppure nel tema: header.php / page template       █
+  █                                                        █
+  █ PREREQUISITI:                                          █
+  █  - Carica animate.mp4 nella Media Library di WP        █
+  █  - Carica logo-full.png nella Media Library            █
+  █  - Carica favicon-192.png nella Media Library          █
+  █  - Carica og-image.png nella Media Library             █
+  █  - Aggiorna gli URL qui sotto con quelli della Media   █
+  ████████████████████████████████████████████████████████
+-->
+
+<!-- META TAGS: Aggiungi in <head> tramite WPCode Header -->
+<!--
+<link rel="icon" type="image/png" sizes="192x192" href="MEDIA_URL/favicon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="MEDIA_URL/favicon-32.png">
+<link rel="apple-touch-icon" href="MEDIA_URL/favicon-192.png">
+<meta property="og:image" content="MEDIA_URL/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="MEDIA_URL/og-image.png">
+-->
+
+<style>
+/* ═══════════════════════════════════════════
+   GENE1799 HERO SECTION STYLES
+   Stile Commodore 16 / Retro Pixel Art
+   ═══════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --g-bg: #050505;
+  --g-bg2: #0a0a0a;
+  --g-card: #1a1a1a;
+  --g-text: #f5f5f5;
+  --g-text2: #b0b0b0;
+  --g-green: #00c853;
+  --g-cyan: #00d4ff;
+  --g-gold: #ffd700;
+  --g-purple: #a85fb4;
+  --g-border: #333333;
+  --g-font-retro: 'Press Start 2P', cursive;
+  --g-font-mono: 'Space Mono', monospace;
+}
+
+/* Hero Container */
+.gene1799-hero {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: var(--g-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 40px 20px;
+}
+
+/* Scanline CRT effect */
+.gene1799-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.12) 0px,
+    transparent 1px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.12) 3px
+  );
+}
+
+/* Grid background pattern */
+.gene1799-hero::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  background-image: 
+    linear-gradient(rgba(0,200,83,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,200,83,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Animated Video Logo */
+.gene1799-video-container {
+  position: relative;
+  z-index: 5;
+  width: 320px;
+  height: auto;
+  margin-bottom: 30px;
+  border: 3px solid var(--g-green);
+  box-shadow: 0 0 30px rgba(0, 200, 83, 0.3), 0 0 60px rgba(0, 200, 83, 0.1);
+  animation: gene-float 4s ease-in-out infinite;
+}
+
+.gene1799-video-container video {
+  width: 100%;
+  height: auto;
+  display: block;
+  image-rendering: pixelated; /* Keep pixel art sharp */
+}
+
+/* Fallback static logo (if video doesn't load) */
+.gene1799-logo-static {
+  display: none;
+  width: 280px;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.gene1799-video-container video:not([src])  ~ .gene1799-logo-static {
+  display: block;
+}
+
+@keyframes gene-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+/* Title */
+.gene1799-title {
+  position: relative;
+  z-index: 5;
+  font-family: var(--g-font-retro);
+  font-size: clamp(18px, 4vw, 42px);
+  color: var(--g-green);
+  text-shadow: 0 0 20px rgba(0, 200, 83, 0.5);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  margin-bottom: 16px;
+  animation: gene-glitch 8s infinite;
+}
+
+@keyframes gene-glitch {
+  0%, 92%, 100% { transform: translate(0); text-shadow: 0 0 20px rgba(0,200,83,0.5); }
+  93% { transform: translate(-3px, 2px); text-shadow: 3px 0 var(--g-cyan), -3px 0 var(--g-purple); }
+  95% { transform: translate(2px, -2px); text-shadow: -2px 0 var(--g-gold), 2px 0 var(--g-green); }
+  97% { transform: translate(-1px, 1px); text-shadow: 1px 0 var(--g-purple), -1px 0 var(--g-cyan); }
+}
+
+/* Subtitle */
+.gene1799-subtitle {
+  position: relative;
+  z-index: 5;
+  font-family: var(--g-font-mono);
+  font-size: clamp(12px, 2vw, 18px);
+  color: var(--g-text2);
+  text-align: center;
+  margin-bottom: 10px;
+  letter-spacing: 2px;
+}
+
+/* Credits line */
+.gene1799-credits {
+  position: relative;
+  z-index: 5;
+  font-family: var(--g-font-mono);
+  font-size: 11px;
+  color: var(--g-text2);
+  text-align: center;
+  margin-bottom: 40px;
+  opacity: 0.6;
+}
+
+/* CTA Buttons */
+.gene1799-cta {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.gene1799-btn {
+  display: inline-block;
+  padding: 14px 28px;
+  font-family: var(--g-font-retro);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-decoration: none;
+  border: 2px solid;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.gene1799-btn--green {
+  color: var(--g-bg);
+  background: var(--g-green);
+  border-color: var(--g-green);
+}
+.gene1799-btn--green:hover {
+  background: transparent;
+  color: var(--g-green);
+  box-shadow: 0 0 20px var(--g-green), inset 0 0 20px rgba(0,200,83,0.1);
+  transform: translateY(-3px);
+}
+
+.gene1799-btn--cyan {
+  color: var(--g-bg);
+  background: var(--g-cyan);
+  border-color: var(--g-cyan);
+}
+.gene1799-btn--cyan:hover {
+  background: transparent;
+  color: var(--g-cyan);
+  box-shadow: 0 0 20px var(--g-cyan), inset 0 0 20px rgba(0,212,255,0.1);
+  transform: translateY(-3px);
+}
+
+.gene1799-btn--gold {
+  color: var(--g-bg);
+  background: var(--g-gold);
+  border-color: var(--g-gold);
+}
+.gene1799-btn--gold:hover {
+  background: transparent;
+  color: var(--g-gold);
+  box-shadow: 0 0 20px var(--g-gold), inset 0 0 20px rgba(255,215,0,0.1);
+  transform: translateY(-3px);
+}
+
+/* Decorative corners */
+.gene1799-corner {
+  position: absolute;
+  z-index: 5;
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--g-green);
+  opacity: 0.4;
+}
+.gene1799-corner--tl { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+.gene1799-corner--tr { top: 20px; right: 20px; border-left: none; border-bottom: none; }
+.gene1799-corner--bl { bottom: 20px; left: 20px; border-right: none; border-top: none; }
+.gene1799-corner--br { bottom: 20px; right: 20px; border-left: none; border-top: none; }
+
+/* Scroll indicator */
+.gene1799-scroll {
+  position: absolute;
+  bottom: 30px;
+  z-index: 5;
+  font-family: var(--g-font-retro);
+  font-size: 10px;
+  color: var(--g-text2);
+  animation: gene-bounce 2s infinite;
+}
+
+@keyframes gene-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(8px); opacity: 1; }
+}
+
+/* Token Banner */
+.gene1799-token-banner {
+  position: relative;
+  z-index: 5;
+  margin-top: 30px;
+  padding: 12px 24px;
+  border: 1px solid var(--g-gold);
+  background: rgba(255, 215, 0, 0.05);
+  font-family: var(--g-font-mono);
+  font-size: 12px;
+  color: var(--g-gold);
+  text-align: center;
+}
+
+.gene1799-token-banner code {
+  font-size: 10px;
+  color: var(--g-cyan);
+  word-break: break-all;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .gene1799-video-container { width: 240px; }
+  .gene1799-cta { flex-direction: column; align-items: center; }
+  .gene1799-btn { width: 100%; max-width: 280px; text-align: center; }
+}
+</style>
+
+<!-- ═══════════════════════════════════════════
+     HERO SECTION HTML
+     Sostituisci MEDIA_URL con l'URL della tua 
+     Media Library WordPress
+     ═══════════════════════════════════════════ -->
+
+<section class="gene1799-hero">
+  <!-- Decorative corners -->
+  <div class="gene1799-corner gene1799-corner--tl"></div>
+  <div class="gene1799-corner gene1799-corner--tr"></div>
+  <div class="gene1799-corner gene1799-corner--bl"></div>
+  <div class="gene1799-corner gene1799-corner--br"></div>
+
+  <!-- Animated Logo Video -->
+  <div class="gene1799-video-container">
+    <video autoplay loop muted playsinline poster="MEDIA_URL/logo-full.png">
+      <source src="MEDIA_URL/animate-web.mp4" type="video/mp4">
+      <!-- Fallback: static image -->
+      <img src="MEDIA_URL/logo-full.png" alt="Gene1799 Logo" class="gene1799-logo-static">
+    </video>
+  </div>
+
+  <!-- Title -->
+  <h1 class="gene1799-title">Gene1799 Art Corporatione</h1>
+  
+  <!-- Subtitle -->
+  <p class="gene1799-subtitle">
+    International Digital Art Events<br>
+    NFT Collections • $GENE1799 Token • AI Art
+  </p>
+  
+  <!-- Credits -->
+  <p class="gene1799-credits">
+    Marco Antonio Saverio Mazzitelli • Fabio Amedeo Lo Presti<br>
+    16/A409879L — Arthemis Ludovici Productions
+  </p>
+
+  <!-- CTA Buttons -->
+  <div class="gene1799-cta">
+    <a href="/nft-gallery" class="gene1799-btn gene1799-btn--green">🎨 Explore Gallery</a>
+    <a href="/claim-airdrop" class="gene1799-btn gene1799-btn--gold">🎁 Claim Tokens</a>
+    <a href="https://zora.co/@gene1799" target="_blank" rel="noopener" class="gene1799-btn gene1799-btn--cyan">🟣 Mint on Zora</a>
+  </div>
+
+  <!-- Token Info Banner -->
+  <div class="gene1799-token-banner">
+    💰 $GENE1799 on Base Network — 
+    <code>0x63800f370b04ce132333c05d811663b80cec788e</code>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="gene1799-scroll">▼ SCROLL ▼</div>
+</section>
+
+<!-- Loading screen (optional - add before hero) -->
+<div id="gene1799-loader" style="
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: #050505; z-index: 99999;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: opacity 0.5s;
+">
+  <div style="font-family: 'Press Start 2P', cursive; font-size: 14px; color: #00c853; margin-bottom: 20px;">
+    ████ GENE1799 ████<br>LOADING...
+  </div>
+  <div style="width: 300px; height: 20px; border: 2px solid #00c853;">
+    <div id="gene1799-loader-bar" style="height: 100%; background: #00c853; width: 0%; box-shadow: 0 0 10px #00c853; transition: width 1.5s ease-out;"></div>
+  </div>
+</div>
+
+<script>
+// Loading screen
+window.addEventListener('load', () => {
+  const bar = document.getElementById('gene1799-loader-bar');
+  const loader = document.getElementById('gene1799-loader');
+  if (bar) bar.style.width = '100%';
+  setTimeout(() => {
+    if (loader) {
+      loader.style.opacity = '0';
+      setTimeout(() => loader.style.display = 'none', 500);
+    }
+  }, 1800);
+});
+</script>
