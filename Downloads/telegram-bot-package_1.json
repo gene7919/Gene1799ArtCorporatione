@@ -1,0 +1,22 @@
+{
+  "name": "gene1799-telegram-bot",
+  "version": "1.0.0",
+  "description": "Gene1799 Art Corporatione - Telegram Bot with NFT notifications, token info, community management, and auto-promotion",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "dev": "nodemon bot.js"
+  },
+  "dependencies": {
+    "telegraf": "^4.16.3",
+    "ethers": "^5.7.2",
+    "node-cron": "^3.0.3",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

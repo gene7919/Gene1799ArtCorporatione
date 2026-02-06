@@ -54,3 +54,7 @@ if all([
                 "database": "unreachable",
                 "details": str(e)
             }
+
+# --- gene1799_core routes ---
+from app.core_routes import router as core_router
+app.include_router(core_router)

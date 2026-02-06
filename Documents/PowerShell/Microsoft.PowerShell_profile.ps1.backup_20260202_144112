@@ -1,0 +1,96 @@
+#region === GENE1799 ENVIRONMENT BOOT ===
+
+# Percorsi base
+$Gene1799RootD = 'D:\Gene1799'
+$Gene1799RootE = 'E:\Gene1799'
+$CoreModuleD   = 'D:\Gene1799\modules\Gene1799Core\Gene1799Core.psm1'
+$CoreModulePS  = 'D:\Gene1799\powershell\gene1799.core.psm1'
+$CoreModE      = 'E:\Gene1799\Core\Gene1799Core\Gene1799Core.psm1'
+$ExtModE       = 'E:\Gene1799\Core\Gene1799Extensions\Gene1799Extensions.psm1'
+$BusModE       = 'E:\Gene1799\Core\Gene1799Bus\Gene1799Bus.psm1'
+$MenuScript    = 'D:\Gene1799\scripts\Gene1799Menu.ps1'
+$InitScript    = 'D:\Gene1799\Init-Gene1799.ps1'
+
+Write-Host ''
+Write-Host '╔════════════════════════════════════╗' -ForegroundColor Cyan
+Write-Host '║   GENE1799 ART CORPORATIONE HUB    ║' -ForegroundColor White
+Write-Host '╚════════════════════════════════════╝' -ForegroundColor Cyan
+Write-Host ''
+
+# 1) Modulo PowerShell core (gene1799.core.psm1)
+if (Test-Path -LiteralPath $CoreModulePS -PathType Leaf) {
+    Import-Module $CoreModulePS -Force
+}
+
+# 2) Modulo Gene1799Core principale (versione D:\)
+if (Test-Path -LiteralPath $CoreModuleD -PathType Leaf) {
+    Import-Module $CoreModuleD -Force
+    Write-Host '✓ Gene1799Core (D:\) caricato' -ForegroundColor Green
+}
+
+# 3) Moduli avanzati su E:\ (Core, Extensions, Bus)
+if (Test-Path -LiteralPath $CoreModE -PathType Leaf) {
+    Import-Module $CoreModE -Force
+    Write-Host '✓ Gene1799Core (E:\) caricato' -ForegroundColor Green
+}
+if (Test-Path -LiteralPath $ExtModE -PathType Leaf) {
+    Import-Module $ExtModE -Force
+    Write-Host '✓ Gene1799Extensions caricato' -ForegroundColor Green
+}
+if (Test-Path -LiteralPath $BusModE -PathType Leaf) {
+    Import-Module $BusModE -Force
+    Write-Host '✓ Gene1799Bus caricato' -ForegroundColor Green
+}
+
+# 4) Alias / funzione principale gene1799 → menu
+if (Test-Path -LiteralPath $MenuScript -PathType Leaf) {
+    function gene1799 { & $MenuScript @Args }
+    Set-Alias gene1799 $MenuScript -ErrorAction SilentlyContinue | Out-Null
+}
+
+Write-Host ''
+Write-Host "✓ HUB READY" -ForegroundColor Green
+Write-Host ''
+Write-Host "Comandi disponibili (principali):" -ForegroundColor Yellow
+Write-Host "  gene1799          -> apre il menu Gene1799" -ForegroundColor White
+Write-Host "  Start-Gene1799Core -> avvia il core (usato internamente)" -ForegroundColor White
+Write-Host ''
+
+# 5) Auto-init leggero (senza console, senza agenti)
+if (Test-Path -LiteralPath $InitScript -PathType Leaf) {
+    Set-Location $Gene1799RootD
+    . $InitScript -NoConsole -NoAgents
+}
+
+Write-Host ''
+Write-Host "Gene1799 System loaded. Type 'gene1799' to start." -ForegroundColor Cyan
+Write-Host ''
+Import-Module "$HOME\Gene1799ArtCorporatione\Modules\Gene1799Core.psm1" -Force
+
+#endregion === GENE1799 ENVIRONMENT BOOT ===
+
+# --- BEGIN Gene1799Core AutoImport ---
+try {
+  # --- Gene1799Core: import robusto con fallback ---
+  $geneCoreCandidates = @(
+    "D:\Gene1799Core\Gene1799Core.psm1",
+    "E:\Gene1799Core\Gene1799Core.psm1",
+    "$HOME\Gene1799ArtCorporatione\Modules\Gene1799Core.psm1"
+  )
+
+  $geneCorePath = $geneCoreCandidates |
+    Where-Object { Test-Path -LiteralPath $_ } |
+    Select-Object -First 1
+
+  if (-not $geneCorePath) {
+    Write-Warning "Gene1799Core.psm1 non trovato. Verifica i path: $($geneCoreCandidates -join ', ')"
+  } else {
+    Import-Module -Path $geneCorePath -Force -ErrorAction Stop
+  }
+} catch {
+  Write-Warning "Gene1799Core AutoImport fallito: $($_.Exception.Message)"
+}
+# --- END   Gene1799Core AutoImport ---
+
+
+

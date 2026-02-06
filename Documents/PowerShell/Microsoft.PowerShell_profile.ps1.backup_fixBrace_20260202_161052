@@ -1,0 +1,28 @@
+# GENE1799 ART CORPORATIONE - AUTO LOADER
+$ErrorActionPreference = 'Continue'
+Write-Host "`n╔════════════════════════════════════╗" -ForegroundColor Cyan
+Write-Host "║   GENE1799 ART CORPORATIONE HUB    ║" -ForegroundColor Cyan
+Write-Host "╚════════════════════════════════════╝`n" -ForegroundColor Cyan
+
+$Gene1799Root = 'D:\Gene1799'
+$Gene1799Modules = Join-Path $Gene1799Root 'modules'
+
+$modulesToLoad = @(
+  @{Name='Gene1799Core'; Path=Join-Path $Gene1799Modules 'Gene1799Core\Gene1799Core.psd1'},
+  @{Name='Gene1799Extensions'; Path=Join-Path $Gene1799Modules 'Gene1799Extensions\Gene1799Extensions.psd1'},
+  @{Name='Gene1799Bus'; Path=Join-Path $Gene1799Modules 'Gene1799Bus\Gene1799Bus.psm1'}
+)
+
+foreach($module in $modulesToLoad){
+  if(Test-Path -LiteralPath $module.Path){
+    try {
+      Import-Module $module.Path -Force -ErrorAction Stop
+      Write-Host "✓ $($module.Name) caricato" -ForegroundColor Green
+    } catch {
+      Write-Warning "Errore caricamento $($module.Name): $_"
+    }
+  }
+}
+
+Write-Host "`n✓ HUB READY`n" -ForegroundColor Green
+Set-Location -Path $Gene1799Root -ErrorAction SilentlyContinue

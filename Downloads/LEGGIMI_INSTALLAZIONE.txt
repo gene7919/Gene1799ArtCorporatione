@@ -1,0 +1,67 @@
+# ⚡ INSTALLA GENE1799 - ULTRA RAPIDO
+
+## 🎯 INSTALLAZIONE IN 2 CLICK
+
+### METODO 1: Doppio Click (PIÙ FACILE!)
+
+1. **Scarica** tutti i file in una cartella (es: Downloads)
+
+2. **Doppio click** su: `INSTALLA_GENE1799.bat`
+
+3. **FATTO!** ✅
+
+Il sistema si installa automaticamente in `D:\Gene1799\Explorer`
+
+---
+
+### METODO 2: Da PowerShell
+
+```powershell
+cd Downloads
+.\Gene1799_Installer.ps1
+```
+
+---
+
+## 🚀 AVVIO
+
+Dopo l'installazione, sul **Desktop** troverai:
+
+📱 **Gene1799 Control Center** ← Doppio click qui!
+
+---
+
+## 📥 SCARICA GLI SCRIPT COMPLETI
+
+L'installer crea solo la struttura base.
+
+**Per avere tutte le funzionalità:**
+
+1. Scarica questi file da Claude:
+   - gene1799_ai_integration_core.ps1
+   - gene1799_ai_agent_system.ps1
+   - gene1799_file_manager.ps1
+   - gene1799_desktop_monitor_gui.ps1
+   - gene1799_quick_setup.ps1
+
+2. Copiaci in: `D:\Gene1799\Explorer\`
+
+3. Avvia Control Center
+
+---
+
+## 🆘 PROBLEMI?
+
+**"Impossibile eseguire script"**
+→ Click destro su INSTALLA_GENE1799.bat → "Esegui come amministratore"
+
+**"PowerShell non trovato"**
+→ Il file BAT funziona anche con PowerShell 5 (già incluso in Windows)
+
+---
+
+## ✨ FATTO!
+
+Ora hai Gene1799 installato!
+
+Per usare tutte le funzioni, ricorda di copiare gli altri script in `D:\Gene1799\Explorer\`

@@ -1,0 +1,65 @@
+# render.yaml - Blueprint for Render.com deployment
+# Gene1799 Art Corporatione
+#
+# This deploys:
+#   1. Static site (frontend) 
+#   2. Telegram bot (background worker)
+#
+# SETUP:
+#   1. Push this file to your GitHub repo root
+#   2. Go to dashboard.render.com
+#   3. Click "New" > "Blueprint" 
+#   4. Connect your gene7919/Gene1799ArtCorporatione repo
+#   5. Set environment variables in Render dashboard
+
+services:
+  # ═══════════════════════════════════════════
+  # TELEGRAM BOT (Background Worker - Free tier)
+  # ═══════════════════════════════════════════
+  - type: worker
+    name: gene1799-telegram-bot
+    runtime: node
+    region: fra  # Frankfurt - closest to Italy
+    plan: free
+    rootDir: telegram-bot
+    buildCommand: npm install
+    startCommand: node bot.js
+    envVars:
+      - key: BOT_TOKEN
+        sync: false  # Set manually in dashboard (secret)
+      - key: CHANNEL_ID
+        sync: false
+      - key: ADMIN_IDS
+        sync: false
+      - key: BASE_RPC_URL
+        value: https://mainnet.base.org
+      - key: TOKEN_CONTRACT
+        value: "0x63800f370b04ce132333c05d811663b80cec788e"
+      - key: ZORA_CREATOR
+        value: gene1799
+      - key: NODE_ENV
+        value: production
+
+  # ═══════════════════════════════════════════
+  # API BACKEND (Web Service - for airdrop claims etc)
+  # ═══════════════════════════════════════════
+  - type: web
+    name: gene1799-api
+    runtime: node
+    region: fra
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: "3000"
+      - key: BASE_RPC_URL
+        value: https://mainnet.base.org
+      - key: TOKEN_CONTRACT
+        value: "0x63800f370b04ce132333c05d811663b80cec788e"
+      - key: CORS_ORIGIN
+        value: https://gene1799artcorporatione.mom
+      - key: NODE_ENV
+        value: production

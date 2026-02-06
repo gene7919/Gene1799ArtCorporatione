@@ -1,0 +1,162 @@
+#region === GENE1799 ENVIRONMENT BOOT ===
+
+# Percorsi base
+$Gene1799RootD = 'D:\Gene1799'
+$Gene1799RootE = 'E:\Gene1799'
+$CoreModuleD   = 'D:\Gene1799\modules\Gene1799Core\Gene1799Core.psm1'
+$CoreModulePS  = 'D:\Gene1799\powershell\gene1799.core.psm1'
+# DISABLED(E-OFF): $CoreModE      = 'E:\Gene1799\Core\Gene1799Core\Gene1799Core.psm1'
+$ExtModE       = 'E:\Gene1799\Core\Gene1799Extensions\Gene1799Extensions.psm1'
+$BusModE       = 'E:\Gene1799\Core\Gene1799Bus\Gene1799Bus.psm1'
+$MenuScript    = 'D:\Gene1799\scripts\Gene1799Menu.ps1'
+$InitScript    = 'D:\Gene1799\Init-Gene1799.ps1'
+
+Write-Host ''
+Write-Host '╔════════════════════════════════════╗' -ForegroundColor Cyan
+Write-Host '║   GENE1799 ART CORPORATIONE HUB    ║' -ForegroundColor White
+Write-Host '╚════════════════════════════════════╝' -ForegroundColor Cyan
+Write-Host ''
+
+# 1) Modulo PowerShell core (gene1799.core.psm1)
+if (Test-Path -LiteralPath $CoreModulePS -PathType Leaf) {
+    Import-Module $CoreModulePS -Force
+}
+
+# 2) Modulo Gene1799Core principale (versione D:\)
+if (Test-Path -LiteralPath $CoreModuleD -PathType Leaf) {
+    Import-Module $CoreModuleD -Force
+    Write-Host '✓ Gene1799Core (D:\) caricato' -ForegroundColor Green
+}
+
+# 3) Moduli avanzati su E:\ (Core, Extensions, Bus)
+# DISABLED(E-OFF): if (Test-Path -LiteralPath $CoreModE -PathType Leaf) {
+# DISABLED(E-OFF):     Import-Module $CoreModE -Force
+# DISABLED(E-OFF):     Write-Host '✓ Gene1799Core (E:\) caricato' -ForegroundColor Green
+# DISABLED(E-OFF): }
+# DISABLED(E-OFF): if (Test-Path -LiteralPath $ExtModE -PathType Leaf) {
+    Import-Module $ExtModE -Force
+    Write-Host '✓ Gene1799Extensions caricato' -ForegroundColor Green
+# FIXED(AUTO): }
+if (Test-Path -LiteralPath $BusModE -PathType Leaf) {
+    Import-Module $BusModE -Force
+    Write-Host '✓ Gene1799Bus caricato' -ForegroundColor Green
+}
+
+# 4) Alias / funzione principale gene1799 → menu
+if (Test-Path -LiteralPath $MenuScript -PathType Leaf) {
+    function gene1799 { & $MenuScript @Args }
+    Set-Alias gene1799 $MenuScript -ErrorAction SilentlyContinue | Out-Null
+}
+
+Write-Host ''
+Write-Host "✓ HUB READY" -ForegroundColor Green
+Write-Host ''
+Write-Host "Comandi disponibili (principali):" -ForegroundColor Yellow
+Write-Host "  gene1799          -> apre il menu Gene1799" -ForegroundColor White
+Write-Host "  Start-Gene1799Core -> avvia il core (usato internamente)" -ForegroundColor White
+Write-Host ''
+
+# 5) Auto-init leggero (senza console, senza agenti)
+if (Test-Path -LiteralPath $InitScript -PathType Leaf) {
+    Set-Location $Gene1799RootD
+    . $InitScript -NoConsole -NoAgents
+}
+
+Write-Host ''
+Write-Host "Gene1799 System loaded. Type 'gene1799' to start." -ForegroundColor Cyan
+Write-Host ''
+# DISABLED: Import path non valido -> Import-Module "$HOME\Gene1799ArtCorporatione\Modules\Gene1799Core.psm1" -Force
+
+#endregion === GENE1799 ENVIRONMENT BOOT ===
+
+# --- BEGIN Gene1799Core AutoImport ---
+try {
+  # --- Gene1799Core: import robusto con fallback ---
+  $geneCoreCandidates = @(
+    "D:\Gene1799Core\Gene1799Core.psm1",
+    "E:\Gene1799Core\Gene1799Core.psm1",
+    "$HOME\Gene1799ArtCorporatione\Modules\Gene1799Core.psm1"
+  )
+
+  $geneCorePath = $geneCoreCandidates |
+    Where-Object { Test-Path -LiteralPath $_ } |
+    Select-Object -First 1
+
+  if (-not $geneCorePath) {
+    Write-Warning "Gene1799Core.psm1 non trovato. Verifica i path: $($geneCoreCandidates -join ', ')"
+  } else {
+    Microsoft.PowerShell.Core\Import-Module -Name $geneCorePath -Force -ErrorAction Stop
+  }
+} catch {
+  Write-Warning "Gene1799Core AutoImport fallito: $($_.Exception.Message)"
+}
+# --- END   Gene1799Core AutoImport ---
+
+# DISABLED(AUTOINIT-BROKEN): # >>> GENE1799 AUTOINIT BEGIN >>>
+# DISABLED(AUTOINIT-BROKEN): 
+# DISABLED(AUTOINIT-BROKEN): # 0) ROOT PRIMA DI TUTTO (compatibilità per codice che legge $Root durante Import-Module)
+# DISABLED(AUTOINIT-BROKEN): $rootPick = @('D:\Gene1799','E:\Gene1799') | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+# DISABLED(AUTOINIT-BROKEN): if (-not $rootPick) { $rootPick = (Get-Location).Path }
+# DISABLED(AUTOINIT-BROKEN): $global:Root = $rootPick
+# DISABLED(AUTOINIT-BROKEN): $env:GENE1799_ROOT = $rootPick
+# DISABLED(AUTOINIT-BROKEN): 
+# DISABLED(AUTOINIT-BROKEN): # 1) StrictMode dopo aver definito Root
+# DISABLED(AUTOINIT-BROKEN): Set-StrictMode -Version Latest
+# DISABLED(AUTOINIT-BROKEN): 
+# DISABLED(AUTOINIT-BROKEN): # 2) Import Gene1799Core (D: -> E:)
+# DISABLED(AUTOINIT-BROKEN): try {
+# DISABLED(AUTOINIT-BROKEN):   $geneCoreCandidates = @(
+# DISABLED(AUTOINIT-BROKEN):     'D:\Gene1799Core\Gene1799Core.psd1',
+# DISABLED(AUTOINIT-BROKEN):     'D:\Gene1799Core\Gene1799Core.psm1',
+# DISABLED(AUTOINIT-BROKEN):     'E:\Gene1799Core\Gene1799Core.psd1',
+# DISABLED(AUTOINIT-BROKEN):     'E:\Gene1799Core\Gene1799Core.psm1'
+# DISABLED(AUTOINIT-BROKEN):   )
+# DISABLED(AUTOINIT-BROKEN):   $geneCorePath = $geneCoreCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+# DISABLED(AUTOINIT-BROKEN): 
+# DISABLED(AUTOINIT-BROKEN):   if ($geneCorePath) {
+# DISABLED(AUTOINIT-BROKEN):     Microsoft.PowerShell.Core\Import-Module -Name $geneCorePath -Force -ErrorAction Stop
+# DISABLED(AUTOINIT-BROKEN):   } else {
+# DISABLED(AUTOINIT-BROKEN):     Write-Warning 'Gene1799Core AutoImport fallito: modulo non trovato (D:\Gene1799Core o E:\Gene1799Core).'
+# DISABLED(AUTOINIT-BROKEN):   }
+# DISABLED(AUTOINIT-BROKEN): } catch {
+# DISABLED(AUTOINIT-BROKEN):   Write-Warning ("Gene1799Core import error: " + $_.Exception.Message)
+# DISABLED(AUTOINIT-BROKEN): }
+# DISABLED(AUTOINIT-BROKEN): 
+# DISABLED(AUTOINIT-BROKEN): # <<< GENE1799 AUTOINIT END <<<
+
+
+
+# >>> GENE1799 CORE D-ONLY (AUTO) >>>
+try {
+  $p = 'D:\Gene1799\modules\Gene1799Core\Gene1799Core.psd1'
+  if(-not (Test-Path -LiteralPath $p)) { $p = 'D:\Gene1799\modules\Gene1799Core\Gene1799Core.psm1' }
+  if(Test-Path -LiteralPath $p) {
+    Microsoft.PowerShell.Core\Import-Module -Name $p -Force -ErrorAction Stop
+  }
+} catch {
+  Write-Warning ("Gene1799Core D-only import error: " + $_.Exception.Message)
+}
+# <<< GENE1799 CORE D-ONLY (AUTO) <<<
+
+# >>> GENE1799 CLEAN AUTOINIT (D-ONLY) >>>
+# Root prima di StrictMode
+$rootPick = @('D:\Gene1799') | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+if(-not $rootPick){ $rootPick = (Get-Location).Path }
+$global:Root = $rootPick
+$env:GENE1799_ROOT = $rootPick
+
+Set-StrictMode -Version Latest
+
+try {
+  $p = 'D:\Gene1799\modules\Gene1799Core\Gene1799Core.psd1'
+  if(-not (Test-Path -LiteralPath $p)) { $p = 'D:\Gene1799\modules\Gene1799Core\Gene1799Core.psm1' }
+  if(Test-Path -LiteralPath $p){
+    Microsoft.PowerShell.Core\Import-Module -Name $p -Force -ErrorAction Stop
+    Write-Host '✓ Gene1799Core (D:\) caricato' -ForegroundColor Green
+  } else {
+    Write-Warning 'Gene1799Core D-only: modulo non trovato in D:\Gene1799\modules\Gene1799Core'
+  }
+} catch {
+  Write-Warning ("Gene1799Core D-only import error: " + $_.Exception.Message)
+}
+# <<< GENE1799 CLEAN AUTOINIT (D-ONLY) <<<
