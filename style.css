@@ -1,0 +1,7 @@
+body { font-family: Arial, sans-serif; margin: 20px; background-color: #111; color: #fff; }
+button { padding: 10px 20px; margin: 10px 0; cursor: pointer; }
+.web3-status { margin: 10px 0; padding: 10px; border-radius: 5px; }
+.text-green { color: #0f0; }
+.text-gold { color: #ffd700; }
+.text-cyan { color: #0ff; }
+.text-secondary { color: #888; }
