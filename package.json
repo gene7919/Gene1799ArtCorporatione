@@ -10,20 +10,21 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "helmet": "^7.1.0",
-    "dotenv": "^16.3.1",
-    "express-rate-limit": "^7.1.5",
-    "express": "^4.19.2",
-    "cors": "^2.8.5",
-    "express-slow-down": "^2.0.3",
-    "winston": "^3.11.0",
+    "axios": "^1.13.4",
     "compression": "^1.7.4",
-    "axios": "^1.6.5",
-    "node-cron": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.1",
+    "express-rate-limit": "^7.1.5",
+    "express-slow-down": "^2.0.3",
+    "helmet": "^7.1.0",
     "lodash": "^4.17.21",
     "moment": "^2.30.0",
+    "multer": "^2.0.2",
+    "node-cron": "^3.0.3",
+    "socket.io": "^4.8.3",
     "uuid": "^9.0.1",
-    "socket.io": "^4.6.0"
+    "winston": "^3.11.0"
   },
   "main": "server.js"
 }

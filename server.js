@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const PORT = 3001;
+const PORT = 3000;
 
 app.get('/', (req, res) => {
   res.send('GENE1799 Backend Running!');
@@ -9,4 +9,5 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log('Server running on port ' + PORT);
 });
+
 

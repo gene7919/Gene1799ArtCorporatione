@@ -1,46 +1,32 @@
-# Dependencies
+# Dipendenze
 node_modules/
-package-lock.json
 npm-debug.log*
 
-# Environment
+# File ambiente (NON committare password/API keys!)
 .env
-.env.local
-.env.production
-*.env
+config/.env
+*.env.local
 
-# Logs
-logs/
+# Log
 *.log
+logs/
 
-# Database
-database/*.db
-*.sqlite*
+# Backup
+*.backup
+*.corrupted
+*.bak
 
-# Build
-build/
-dist/
-
-# OS
+# Sistema operativo
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# Uploads
-uploads/
-generated/
-temp/
-
-# Backups
-*.bak
-*.backup
-*.backup_*
-
-# User files
-NTUSER.DAT*
-ntuser.dat*
-Cookies/
-AppData/
+# Build
+dist/
+build/
