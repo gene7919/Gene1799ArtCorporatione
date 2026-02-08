@@ -66,12 +66,16 @@ gene1799artcorporatione/
 - Discord webhooks
 - TikTok support
 
-### 💰 Web3 Integration (`backend/src/web3-integration.js`)
-- MetaMask wallet connection
-- Base network support
-- Token transactions
-- Airdrop claiming
-- Message signing
+### 💰 Web3 dApps Integration (`backend/src/web3-dapps-integration.js`)
+- **Uniswap**: Token swaps with MEV protection
+- **Aave**: Lending, borrowing, flash loans
+- **OpenSea**: NFT trading and listing
+- **Zora**: NFT minting and galleries
+- **Lido**: Ethereum staking (ETH → stETH)
+- **Curve**: Stablecoin swaps with minimal slippage
+- **Multi-chain**: Ethereum, Polygon, Arbitrum, Optimism, Base
+- **Portfolio Tracking**: Real-time portfolio value in USD
+- **Gas Optimization**: Estimate and optimize transaction costs
 
 ### 🎨 NFT Multi-Platform Loader (`backend/src/nft-loader.js`)
 - Zora NFT support
@@ -101,6 +105,16 @@ gene1799artcorporatione/
 - Social platform scheduling
 - System logs & metrics
 - Interactive controls
+
+### 🌐 Web3 dApps Dashboard (`frontend/web3-dapps-dashboard.html`)
+- Portfolio monitoring in USD
+- Multi-token balance display
+- Uniswap swap interface
+- Aave deposits/borrowing
+- Lido staking interface
+- OpenSea NFT listing
+- Multi-chain support
+- Gas price tracking
 
 ## ⚙️ Setup Iniziale
 
@@ -181,6 +195,7 @@ az deployment group create \
 - 🔧 [Setup Guide](./SETUP_GUIDE.md) - Complete setup instructions
 - ☁️ [Azure Integration](./AZURE_INTEGRATION_GUIDE.md) - Cloud infrastructure
 - 🔒 [Security Guide](./PROTECTIVE_MATRIX_GUIDE.md) - Enterprise security
+- 🌐 [Web3 dApps Guide](./WEB3_DAPPS_GUIDE.md) - DeFi & NFT integration
 
 ### Integration & Architecture
 - 🏗️ [System Integration](./SYSTEM_INTEGRATION_GUIDE.md) - Complete architecture
@@ -189,7 +204,12 @@ az deployment group create \
 - 🔗 [Sync Guide](./SYNC_GUIDE.md) - Repository synchronization
 
 ### Complete Documentation
-All 37+ guides available in repository root directory
+All 41+ guides available in repository root directory
+
+### Key Files Added
+- `WEB3_DAPPS_GUIDE.md` - DeFi integration guide
+- `backend/src/web3-dapps-integration.js` - Multi-dApp module
+- `frontend/web3-dapps-dashboard.html` - Web3 monitoring interface
 
 ## 📊 System Metrics
 
