@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GENE1799 - Orchestrator Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #eaeaea;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #0f3460;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .section {
+            background: rgba(15, 52, 96, 0.5);
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 1px solid #0f3460;
+            padding-bottom: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .card {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid #0f3460;
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        .card-title {
+            color: #00d4ff;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .card-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .card-label {
+            color: #888;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .status.active {
+            background: #00d4ff;
+            color: #1a1a2e;
+        }
+
+        .status.idle {
+            background: #ffa500;
+            color: #1a1a2e;
+        }
+
+        .status.error {
+            background: #ff4444;
+            color: #fff;
+        }
+
+        .agent {
+            background: rgba(15, 52, 96, 0.3);
+            border-left: 3px solid #00d4ff;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        .agent-name {
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 5px;
+        }
+
+        .agent-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            color: #aaa;
+        }
+
+        .stat-value {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .platform {
+            background: rgba(15, 52, 96, 0.3);
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            border-left: 3px solid #00d4ff;
+        }
+
+        .platform-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .platform-name {
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .platform-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.85em;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 0.8em;
+        }
+
+        .stat-num {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #00d4ff;
+            color: #1a1a2e;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            fontweight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        button:hover {
+            background: #00bcd4;
+            transform: translateY(-2px);
+        }
+
+        .metric {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+
+        .progress-bar {
+            background: #0f3460;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #00d4ff, #00bcd4);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a1a2e;
+            font-size: 0.7em;
+            font-weight: bold;
+        }
+
+        .log {
+            background: #000;
+            border: 1px solid #0f3460;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            max-height: 300px;
+            overflow-y: auto;
+            color: #00d4ff;
+        }
+
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #0f3460;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .timestamp {
+            color: #888;
+            margin-right: 10px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #888;
+            border-top: 1px solid #0f3460;
+            padding-top: 20px;
+        }
+
+        .refresh-indicator {
+            color: #00d4ff;
+            font-size: 0.8em;
+            margin-top: 10px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 GENE1799 ORCHESTRATOR DASHBOARD</h1>
+            <p class="subtitle">Central Control & Monitoring System</p>
+        </header>
+
+        <!-- Orchestrator Health -->
+        <div class="section">
+            <h2>🏥 Orchestrator Health</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-title">Status</div>
+                    <div class="card-value">OPERATIONAL</div>
+                    <div class="status active">Online</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Uptime</div>
+                    <div class="card-value" id="uptime">--</div>
+                    <div class="card-label">hours</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Tasks Processed</div>
+                    <div class="card-value" id="tasksProcessed">0</div>
+                    <div class="card-label">total</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Success Rate</div>
+                    <div class="card-value" id="successRate">--</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="successBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Agents -->
+        <div class="section">
+            <h2>🤖 Active Learning Agents</h2>
+            <div id="agentsContainer">
+                <div class="agent">
+                    <div class="agent-name">📝 ContentAgent</div>
+                    <div class="agent-stats">
+                        <div class="stat">Status: <span class="stat-value">LEARNING</span></div>
+                        <div class="stat">Tasks: <span class="stat-value">42</span></div>
+                        <div class="stat">Score: <span class="stat-value">8.7/10</span></div>
+                    </div>
+                    <div class="status active">Processing</div>
+                </div>
+
+                <div class="agent">
+                    <div class="agent-name">📊 AnalyticsAgent</div>
+                    <div class="agent-stats">
+                        <div class="stat">Status: <span class="stat-value">IDLE</span></div>
+                        <div class="stat">Tasks: <span class="stat-value">28</span></div>
+                        <div class="stat">Score: <span class="stat-value">9.1/10</span></div>
+                    </div>
+                    <div class="status active">Ready</div>
+                </div>
+
+                <div class="agent">
+                    <div class="agent-name">👥 CommunityAgent</div>
+                    <div class="agent-stats">
+                        <div class="stat">Status: <span class="stat-value">ACTIVE</span></div>
+                        <div class="stat">Tasks: <span class="stat-value">156</span></div>
+                        <div class="stat">Score: <span class="stat-value">8.9/10</span></div>
+                    </div>
+                    <div class="status active">Engaged</div>
+                </div>
+
+                <div class="agent">
+                    <div class="agent-name">📱 SocialAgent</div>
+                    <div class="agent-stats">
+                        <div class="stat">Status: <span class="stat-value">PUBLISHING</span></div>
+                        <div class="stat">Tasks: <span class="stat-value">87</span></div>
+                        <div class="stat">Score: <span class="stat-value">9.3/10</span></div>
+                    </div>
+                    <div class="status active">Live</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Social Media Platforms -->
+        <div class="section">
+            <h2>📱 Social Media Automation</h2>
+            <div id="platformsContainer">
+                <div class="platform">
+                    <div class="platform-header">
+                        <span class="platform-name">Twitter/X</span>
+                        <span class="status active">Connected</span>
+                    </div>
+                    <div class="platform-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Posts</div>
+                            <div class="stat-num">234</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Followers</div>
+                            <div class="stat-num">5.2K</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Engagement</div>
+                            <div class="stat-num">8.5%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="platform">
+                    <div class="platform-header">
+                        <span class="platform-name">Instagram</span>
+                        <span class="status active">Connected</span>
+                    </div>
+                    <div class="platform-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Posts</div>
+                            <div class="stat-num">167</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Followers</div>
+                            <div class="stat-num">3.8K</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Engagement</div>
+                            <div class="stat-num">12.3%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="platform">
+                    <div class="platform-header">
+                        <span class="platform-name">Telegram</span>
+                        <span class="status active">Connected</span>
+                    </div>
+                    <div class="platform-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Posts</div>
+                            <div class="stat-num">456</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Members</div>
+                            <div class="stat-num">8.9K</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Engagement</div>
+                            <div class="stat-num">15.7%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="platform">
+                    <div class="platform-header">
+                        <span class="platform-name">Discord</span>
+                        <span class="status active">Connected</span>
+                    </div>
+                    <div class="platform-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Posts</div>
+                            <div class="stat-num">892</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Members</div>
+                            <div class="stat-num">4.5K</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Engagement</div>
+                            <div class="stat-num">22.1%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button onclick="schedulePost()">📤 Schedule Post</button>
+                <button onclick="publishNow()">📢 Publish Now</button>
+                <button onclick="generateContent()">✨ Generate Content</button>
+                <button onclick="viewAnalytics()">📊 View Analytics</button>
+            </div>
+        </div>
+
+        <!-- Queue Status -->
+        <div class="section">
+            <h2>📋 Content Queue</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-title">Queued Posts</div>
+                    <div class="card-value" id="queuedPosts">12</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Scheduled</div>
+                    <div class="card-value" id="scheduledPosts">34</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Published</div>
+                    <div class="card-value" id="publishedPosts">1,247</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">In Review</div>
+                    <div class="card-value" id="reviewPosts">5</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Logs -->
+        <div class="section">
+            <h2>📜 System Logs</h2>
+            <div class="log">
+                <div class="log-entry">
+                    <span class="timestamp">[14:32:05]</span>
+                    <span class="pulse">✓</span> ContentAgent completed task #42
+                </div>
+                <div class="log-entry">
+                    <span class="timestamp">[14:31:12]</span>
+                    <span>✓</span> Published post to Twitter (engagement: 8.5%)
+                </div>
+                <div class="log-entry">
+                    <span class="timestamp">[14:30:45]</span>
+                    <span>✓</span> Analytics updated - 1.2K new followers this week
+                </div>
+                <div class="log-entry">
+                    <span class="timestamp">[14:29:33]</span>
+                    <span class="pulse">✓</span> SocialAgent processing content queue (12 posts)
+                </div>
+                <div class="log-entry">
+                    <span class="timestamp">[14:28:10]</span>
+                    <span>✓</span> Learning engine updated: 45 new patterns recognized
+                </div>
+                <div class="log-entry">
+                    <span class="timestamp">[14:27:02]</span>
+                    <span>✓</span> CommunityAgent responded to 23 comments
+                </div>
+                <div class="log-entry">
+                    <span class="timestamp">[14:26:15]</span>
+                    <span>✓</span> Scheduled 8 posts for tomorrow
+                </div>
+            </div>
+            <div class="refresh-indicator">Last updated: just now</div>
+        </div>
+
+        <!-- Controls -->
+        <div class="section">
+            <h2>⚙️ System Controls</h2>
+            <div class="button-group">
+                <button onclick="pauseAll()">⏸ Pause All Agents</button>
+                <button onclick="resumeAll()">▶ Resume All Agents</button>
+                <button onclick="purgeQueue()">🗑 Clear Queue</button>
+                <button onclick="exportData()">💾 Export Data</button>
+                <button onclick="systemRestart()">🔄 Restart System</button>
+                <button onclick="showSettings()">⚙️ Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>GENE1799 ART CORPORATIONE © 2026 | Central Orchestrator Dashboard v1.0</p>
+        <p>Powered by Learning Agents & Social Automation</p>
+    </footer>
+
+    <script>
+        // Auto-refresh every 5 seconds
+        setInterval(updateDashboard, 5000);
+
+        function updateDashboard() {
+            // In production, fetch from API endpoint
+            document.getElementById('tasksProcessed').textContent = Math.floor(Math.random() * 500) + 100;
+            document.getElementById('uptime').textContent = (Math.random() * 24 + 1).toFixed(1);
+        }
+
+        function schedulePost() {
+            alert('📅 Schedule post dialog would open here');
+        }
+
+        function publishNow() {
+            alert('📢 Publishing queued posts...');
+        }
+
+        function generateContent() {
+            alert('✨ Content generation with AI agents activated!');
+        }
+
+        function viewAnalytics() {
+            alert('📊 Analytics dashboard loading...');
+        }
+
+        function pauseAll() {
+            alert('⏸ All agents paused');
+        }
+
+        function resumeAll() {
+            alert('▶ All agents resumed');
+        }
+
+        function purgeQueue() {
+            if (confirm('Are you sure? This will clear the content queue.')) {
+                alert('🗑 Queue cleared');
+            }
+        }
+
+        function exportData() {
+            alert('💾 Exporting orchestrator data...');
+        }
+
+        function systemRestart() {
+            if (confirm('Restart the orchestrator? This will take ~30 seconds.')) {
+                alert('🔄 System restarting...');
+            }
+        }
+
+        function showSettings() {
+            alert('⚙️ Settings panel would open here');
+        }
+
+        // Load initial data
+        updateDashboard();
+    </script>
+</body>
+</html>
