@@ -7,7 +7,7 @@ const slowDown = require('express-slow-down');
 const winston = require('winston');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
-const { getIntegrationService } = require('./backend/services/integrationService');
+const { getOrchestratorService } = require('./backend/services/orchestratorService');
 require('dotenv').config();
 
 // Initialize Express app
@@ -22,8 +22,8 @@ const io = new Server(httpServer, {
 
 const PORT = process.env.PORT || 3000;
 
-// Get integration service
-const integrationService = getIntegrationService();
+// Get orchestrator service
+const orchestratorService = getOrchestratorService();
 
 // Configure Winston Logger
 const logger = winston.createLogger({
@@ -82,14 +82,14 @@ app.use((req, res, next) => {
 // Health Check Endpoint
 app.get('/api/health', async (req, res) => {
   try {
-    const systemHealth = await integrationService.getSystemHealth();
+    const orchestratorHealth = orchestratorService.getHealth();
     res.status(200).json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       version: require('./package.json').version,
       environment: process.env.NODE_ENV || 'development',
-      systems: systemHealth
+      orchestrator: orchestratorHealth
     });
   } catch (error) {
     logger.error('Health check error:', error);
@@ -109,23 +109,17 @@ app.get('/', (req, res) => {
     status: 'running',
     endpoints: {
       health: '/api/health',
-      agents: '/api/agents',
-      content: '/api/content',
-      social: '/api/social',
+      orchestrator: '/api/orchestrator',
       websocket: 'ws://localhost:' + PORT
     }
   });
 });
 
 // Import route modules
-const agentsRoutes = require('./backend/routes/agents');
-const contentRoutes = require('./backend/routes/content');
-const socialRoutes = require('./backend/routes/social');
+const orchestratorRoutes = require('./backend/routes/orchestrator');
 
 // Register API routes
-app.use('/api/agents', agentsRoutes);
-app.use('/api/content', contentRoutes);
-app.use('/api/social', socialRoutes);
+app.use('/api/orchestrator', orchestratorRoutes);
 
 // WebSocket Connection Handler
 io.on('connection', (socket) => {
@@ -178,13 +172,17 @@ httpServer.listen(PORT, async () => {
     fs.mkdirSync('logs', { recursive: true });
   }
   
-  // Initialize integration service
+  if (!fs.existsSync('data')) {
+    fs.mkdirSync('data', { recursive: true });
+  }
+  
+  // Initialize orchestrator service
   try {
-    await integrationService.initialize();
-    logger.info('Integration service initialized successfully');
+    await orchestratorService.initialize();
+    logger.info('Orchestrator service initialized successfully');
   } catch (error) {
-    logger.error('Integration service initialization failed:', error);
-    logger.warn('Running in Node-only mode');
+    logger.error('Orchestrator service initialization failed:', error);
+    logger.warn('Running in limited mode');
   }
 });
 
@@ -192,12 +190,12 @@ httpServer.listen(PORT, async () => {
 process.on('SIGTERM', async () => {
   logger.info('SIGTERM received, shutting down gracefully');
   
-  // Shutdown integration service
+  // Shutdown orchestrator service
   try {
-    await integrationService.shutdown();
-    logger.info('Integration service shutdown complete');
+    await orchestratorService.shutdown();
+    logger.info('Orchestrator service shutdown complete');
   } catch (error) {
-    logger.error('Integration service shutdown error:', error);
+    logger.error('Orchestrator service shutdown error:', error);
   }
   
   httpServer.close(() => {
