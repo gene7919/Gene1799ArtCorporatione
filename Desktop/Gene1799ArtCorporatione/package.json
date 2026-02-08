@@ -1,0 +1,33 @@
+{
+  "name": "gene1799artcorporatione",
+  "version": "1.0.0",
+  "description": "Progetto integrato - AI Agent, Backend API, Frontend Web, App Desktop",
+  "private": true,
+  "workspaces": [
+    "ai-agent",
+    "backend",
+    "frontend",
+    "desktop",
+    "shared"
+  ],
+  "scripts": {
+    "install-all": "npm install",
+    "dev": "concurrently \"npm:dev:*\"",
+    "dev:backend": "npm -w backend run dev",
+    "dev:frontend": "npm -w frontend run dev",
+    "dev:desktop": "npm -w desktop run dev",
+    "build": "npm run build -w backend && npm run build -w frontend",
+    "build:all": "npm run build -w backend && npm run build -w frontend && npm run build -w desktop",
+    "test": "npm test -w backend && npm test -w frontend",
+    "lint": "npm run lint -w backend && npm run lint -w frontend",
+    "setup": "node scripts/setup.js",
+    "setup:interactive": "powershell -ExecutionPolicy Bypass -File setup-automation.ps1 -InteractiveMode $true",
+    "deploy:render": "node deploy-render.js",
+    "deploy:render:interactive": "node deploy-render.js --interactive",
+    "deploy:bot": "npm -w telegram-bot run start",
+    "deploy:all": "npm run build:all && npm run deploy:render"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
