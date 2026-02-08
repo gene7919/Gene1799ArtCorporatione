@@ -19,6 +19,7 @@ class Gene1799Bot {
     this.adminIds = (process.env.ADMIN_IDS || '').split(',').filter(Boolean);
     this.baseRpcUrl = process.env.BASE_RPC_URL || 'https://mainnet.base.org';
     this.tokenContract = process.env.TOKEN_CONTRACT || '0x63800f788e788e0d3a9cc0ce92a8e6c866f0f0f0';
+    this.web3ServiceUrl = process.env.WEB3_SERVICE_URL || 'http://localhost:8004';
 
     // Initialize bot
     this.bot = new TelegramBot(this.token, { polling: true });
@@ -95,6 +96,16 @@ class Gene1799Bot {
 
     this.bot.onText(/\/warn (@.*?)/, (msg, match) => {
       this.handleWarn(msg, match[1]);
+    });
+
+    // /portfolio - Wallet portfolio with real data
+    this.bot.onText(/\/portfolio/, (msg) => {
+      this.handlePortfolio(msg);
+    });
+
+    // /mint - Zora minting info
+    this.bot.onText(/\/mint/, (msg) => {
+      this.handleMint(msg);
     });
   }
 
@@ -418,7 +429,9 @@ Numero di Supporto: +39 123 456 7890
 /token - Info \`$GENE1799\`
 /price - Prezzo e market cap
 /balance - Check balance wallet
+/portfolio - Portfolio completo wallet
 /nft - Collezioni NFT
+/mint - Minta NFT su Zora
 /gallery - Mostre ed esposizioni
 /social - Link social
 /about - Chi siamo
@@ -652,27 +665,149 @@ Buona esplorazione! 🚀
   }
 
   /**
-   * Helper: Get token balance (placeholder)
+   * Helper: Get token balance via Web3 Service
    */
   async getTokenBalance(address) {
-    // This would connect to Base RPC and check balance
-    return '1234.56'; // Placeholder
+    try {
+      const response = await axios.get(
+        `${this.web3ServiceUrl}/wallet/${address}/portfolio`,
+        { timeout: 10000 }
+      );
+      return response.data.gene1799_balance || '0';
+    } catch (error) {
+      console.error('Error fetching token balance:', error.message);
+      return '0';
+    }
   }
 
   /**
-   * Helper: Get ETH balance (placeholder)
+   * Helper: Get ETH balance via Web3 Service
    */
   async getETHBalance(address) {
-    // This would connect to Base RPC and check balance
-    return '0.5'; // Placeholder
+    try {
+      const response = await axios.get(
+        `${this.web3ServiceUrl}/wallet/${address}/portfolio`,
+        { timeout: 10000 }
+      );
+      return response.data.eth_balance || '0';
+    } catch (error) {
+      console.error('Error fetching ETH balance:', error.message);
+      return '0';
+    }
   }
 
   /**
-   * Helper: Fetch Zora sales
+   * Helper: Fetch Zora NFTs/sales via Web3 Service
    */
   async fetchZoraSales() {
-    // This would fetch from Zora API
-    return [];
+    try {
+      const response = await axios.get(
+        `${this.web3ServiceUrl}/nft/zora`,
+        { timeout: 15000 }
+      );
+      return response.data.nfts || [];
+    } catch (error) {
+      console.error('Error fetching Zora NFTs:', error.message);
+      return [];
+    }
+  }
+
+  /**
+   * Handler: /portfolio - View wallet portfolio
+   */
+  async handlePortfolio(msg) {
+    if (!msg.text.includes(' ')) {
+      return this.bot.sendMessage(msg.chat.id, `
+*Wallet Portfolio*
+
+Usa il comando:
+\`/portfolio 0xTuoIndirizzo\`
+
+Mostra il tuo saldo ETH + $GENE1799 su Base Network.
+      `, { parse_mode: 'Markdown' });
+    }
+
+    const address = msg.text.split(' ')[1];
+    this.bot.sendMessage(msg.chat.id, 'Caricamento portfolio...');
+
+    try {
+      const response = await axios.get(
+        `${this.web3ServiceUrl}/wallet/${address}/portfolio`,
+        { timeout: 15000 }
+      );
+      const p = response.data;
+
+      const portfolioMsg = `
+*Portfolio ${address.substring(0, 6)}...${address.slice(-4)}*
+
+*ETH:* ${p.eth_balance || '0'} ETH
+*$GENE1799:* ${p.gene1799_balance || '0'}
+${p.gene1799_value_usd ? `*Valore:* $${p.gene1799_value_usd} USD` : ''}
+
+*Chain:* Base (L2)
+*Explorer:* [BaseScan](${p.explorer || 'https://basescan.org'})
+      `;
+
+      this.bot.sendMessage(msg.chat.id, portfolioMsg, {
+        parse_mode: 'Markdown',
+        disable_web_page_preview: true
+      });
+    } catch (error) {
+      this.bot.sendMessage(msg.chat.id, `Errore: ${error.message}`);
+    }
+  }
+
+  /**
+   * Handler: /mint - Zora minting info and links
+   */
+  async handleMint(msg) {
+    const keyboard = {
+      inline_keyboard: [
+        [
+          { text: 'Mint su Zora', url: 'https://zora.co/@gene1799' }
+        ],
+        [
+          { text: 'OpenSea Collection', url: 'https://opensea.io/collection/gene1799' },
+          { text: 'Rarible', url: 'https://rarible.com/gene1799' }
+        ],
+        [
+          { text: '$GENE1799 DexScreener', url: `https://dexscreener.com/base/${this.tokenContract}` }
+        ]
+      ]
+    };
+
+    let nftInfo = '';
+    try {
+      const response = await axios.get(
+        `${this.web3ServiceUrl}/nft/zora`,
+        { timeout: 10000 }
+      );
+      const nftCount = response.data.nft_count || 0;
+      nftInfo = nftCount > 0 ? `\n*Opere disponibili:* ${nftCount} NFTs su Zora` : '';
+    } catch (e) {
+      // Ignore errors
+    }
+
+    const mintMsg = `
+*MINT GENE1799 NFT*
+
+Minta le opere di GENE1799 direttamente su Zora!
+${nftInfo}
+
+*Come mintare:*
+1. Apri il link Zora sotto
+2. Connetti il tuo wallet (MetaMask)
+3. Seleziona l'opera
+4. Clicca "Mint"
+
+*Token:* $GENE1799 su Base Network
+*Contratto:* \`${this.tokenContract}\`
+    `;
+
+    this.bot.sendMessage(msg.chat.id, mintMsg, {
+      parse_mode: 'Markdown',
+      reply_markup: keyboard
+    });
   }
 
   /**

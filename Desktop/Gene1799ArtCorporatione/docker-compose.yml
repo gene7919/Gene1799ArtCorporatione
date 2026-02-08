@@ -1,76 +1,141 @@
 version: '3.8'
-
 services:
-  # Backend API Service
+  # === DATABASE ===
+  mongodb:
+    image: mongo:7.0
+    container_name: gene1799-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongodb/data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: gene1799ultra2026
+
+  # === BACKEND API ===
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: production-backend
+    build: ./backend
+    container_name: gene1799-backend
+    restart: always
     ports:
       - "3000:3000"
     environment:
-      NODE_ENV: production
-      DATABASE_URL: postgresql://user:password@db:5432/gene1799
-      PORT: 3000
+      MONGODB_URI: mongodb://admin:gene1799ultra2026@mongodb:27017/gene1799_v7
+      GPU_SERVICE_URL: http://gpu-service:4000
+      WEB3_SERVICE_URL: http://web3-service:8004
     depends_on:
-      - db
-    networks:
-      - gene1799-network
+      - mongodb
 
-  # Frontend Web Service
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: production-frontend
+  # === GPU SERVICE (RTX 4070 Super) ===
+  gpu-service:
+    build: ./gpu-service
+    container_name: gene1799-gpu
+    restart: always
     ports:
-      - "80:80"
+      - "4000:4000"
     environment:
-      - VITE_API_URL=http://localhost:3000
-    depends_on:
-      - backend
-    networks:
-      - gene1799-network
+      NVIDIA_VISIBLE_DEVICES: all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
-  # AI Agent Service
-  agent:
+  # === AZURE AI INTEGRATION ===
+  azure-ai:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: production-agent
+      dockerfile: Dockerfile.python
+    container_name: gene1799-azure
+    restart: always
+    ports:
+      - "8001:8001"
+    command: python azure_ai_integration.py
     environment:
-      AGENT_NAME: Gene1799
-      API_HOST: backend
-      API_PORT: 3000
-      PYTHONUNBUFFERED: 1
-    depends_on:
-      - backend
-    networks:
-      - gene1799-network
+      AZURE_ENDPOINT: ${AZURE_ENDPOINT:-}
+      AZURE_PROJECT_ID: ${AZURE_PROJECT_ID:-}
 
-  # PostgreSQL Database
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: gene1799
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+  # === CREATIVE CONTENT SERVICE ===
+  creative-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    container_name: gene1799-creative
+    restart: always
+    ports:
+      - "8002:8002"
+    command: python creative-content-service/main.py
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - ./media:/app/media
+
+  # === PUBLISHING PIPELINE ===
+  publishing-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    container_name: gene1799-publishing
+    restart: always
     ports:
-      - "5432:5432"
-    networks:
-      - gene1799-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - "8003:8003"
+    command: python publishing-service/main.py
+    volumes:
+      - ./media:/app/media
 
-volumes:
-  db_data:
+  # === WEB3 & NFT SERVICE ===
+  web3-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    container_name: gene1799-web3
+    restart: always
+    ports:
+      - "8004:8004"
+    command: python web3-service/main.py
+    environment:
+      BASE_RPC_URL: https://mainnet.base.org
+      TOKEN_CONTRACT: "0x63800f788e788e0d3a9cc0ce92a8e6c866f0f0f0"
 
-networks:
-  gene1799-network:
-    driver: bridge
+  # === UNIFIED ORCHESTRATOR ===
+  orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    container_name: gene1799-orchestrator
+    restart: always
+    ports:
+      - "5050:5050"
+    command: node orchestrator-unified.js
+    depends_on:
+      - gpu-service
+      - azure-ai
+      - creative-service
+      - publishing-service
+      - web3-service
+
+  # === TELEGRAM BOT ===
+  telegram-bot:
+    build: ./telegram-bot
+    container_name: gene1799-telegram
+    restart: always
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN:-}
+      CHANNEL_ID: ${CHANNEL_ID:-}
+      ADMIN_IDS: ${ADMIN_IDS:-}
+      WEB3_SERVICE_URL: http://web3-service:8004
+      TOKEN_CONTRACT: "0x63800f788e788e0d3a9cc0ce92a8e6c866f0f0f0"
+    depends_on:
+      - web3-service
+
+  # === FRONTEND DASHBOARD ===
+  frontend:
+    build: ./frontend
+    container_name: gene1799-frontend
+    restart: always
+    ports:
+      - "3001:3000"
+    depends_on:
+      - backend
+      - orchestrator

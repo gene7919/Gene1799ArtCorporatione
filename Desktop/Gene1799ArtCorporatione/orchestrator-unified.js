@@ -35,7 +35,8 @@ const CONFIG = {
         agent: { port: 8000, name: 'Python AI Agent', type: 'agent', healthPath: '/health' },
         orchestrator: { port: 5000, name: 'Master Orchestrator', type: 'orchestration', healthPath: '/health' },
         creative: { port: 8002, name: 'Creative Content Service', type: 'creative', healthPath: '/health' },
-        publishing: { port: 8003, name: 'Publishing Pipeline', type: 'publishing', healthPath: '/health' }
+        publishing: { port: 8003, name: 'Publishing Pipeline', type: 'publishing', healthPath: '/health' },
+        web3: { port: 8004, name: 'Web3 & NFT Service', type: 'web3', healthPath: '/health' }
     },
 
     AZURE_SERVICE: {
@@ -58,7 +59,9 @@ const CONFIG = {
         'music-creator': { type: 'creative', capability: 'music generation' },
         'video-creator': { type: 'creative', capability: 'video assembly' },
         'lyrics-writer': { type: 'creative', capability: 'lyrics generation' },
-        'content-publisher': { type: 'publishing', capability: 'multi-platform publishing' }
+        'content-publisher': { type: 'publishing', capability: 'multi-platform publishing' },
+        'wallet-manager': { type: 'web3', capability: 'crypto portfolio and wallet' },
+        'nft-curator': { type: 'web3', capability: 'NFT gallery and minting' }
         // + 14 more agents configured in GENE1799 system
     },
 
@@ -285,6 +288,13 @@ class UnifiedOrchestrator extends EventEmitter {
             }
         }
 
+        // Web3/NFT/Token routes to Web3 Service
+        if (domain === 'web3' || domain === 'nft' || domain === 'token' || domain === 'wallet' || domain === 'crypto') {
+            if (this.serviceStatus.get('web3')?.status === 'healthy') {
+                return { provider: 'web3', service: 'web3-nft-service' };
+            }
+        }
+
         // Check local agent capability first
         if (type !== 'general') {
             const localAgent = Object.entries(this.config.LOCAL_AGENTS).find(
@@ -349,6 +359,10 @@ class UnifiedOrchestrator extends EventEmitter {
 
                 case 'gpu':
                     result = await this.queryGpuService(query);
+                    break;
+
+                case 'web3':
+                    result = await this.queryWeb3Service(query);
                     break;
 
                 default:
@@ -542,6 +556,40 @@ class UnifiedOrchestrator extends EventEmitter {
             return response.data;
         } catch (error) {
             throw new Error(`GPU Service Error: ${error.message}`);
+        }
+    }
+
+    /**
+     * Query Web3 & NFT Service (token info, portfolio, NFTs, minting)
+     */
+    async queryWeb3Service(query) {
+        try {
+            const web3Port = this.config.LOCAL_SERVICES.web3.port;
+            let endpoint = '/token/info';
+
+            // Determine which endpoint based on query
+            if (query.action === 'price' || query.domain === 'token') {
+                endpoint = '/token/price';
+            } else if (query.action === 'portfolio' && query.address) {
+                endpoint = `/wallet/${query.address}/portfolio`;
+            } else if (query.action === 'nft' || query.domain === 'nft') {
+                endpoint = '/nft/all';
+            } else if (query.action === 'zora') {
+                endpoint = '/nft/zora';
+            } else if (query.action === 'opensea') {
+                endpoint = '/nft/opensea';
+            } else if (query.action === 'profile') {
+                endpoint = '/zora/profile';
+            }
+
+            const response = await axios.get(
+                `http://localhost:${web3Port}${endpoint}`,
+                { timeout: 15000 }
+            );
+
+            return response.data;
+        } catch (error) {
+            throw new Error(`Web3 Service Error: ${error.message}`);
         }
     }
 
