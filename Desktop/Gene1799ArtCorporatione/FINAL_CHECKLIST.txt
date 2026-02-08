@@ -209,9 +209,9 @@ Quick Help:
   - Read: README_AUTOMATION.txt (3-step start)
   - Read: SETUP_GUIDE.md (complete guide)
 
-Problems:
+Problems Contact:
+  Email: gene1799artcorporatione@gmail.com
   GitHub Issues: github.com/gene7919/Gene1799ArtCorporatione/issues
-  Email: hello@gene1799.art
   Telegram: @gene1799_art_bot
 
 ================================================================================

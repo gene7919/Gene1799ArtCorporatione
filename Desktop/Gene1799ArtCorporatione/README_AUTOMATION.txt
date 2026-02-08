@@ -137,7 +137,7 @@ node -c telegram-bot/bot.js
 
 ## 📞 Help
 
-- Email: hello@gene1799.art
+- Email: gene1799artcorporatione@gmail.com
 - Telegram: @gene1799_art_bot
 - GitHub Issues: github.com/gene7919/Gene1799ArtCorporatione/issues
 

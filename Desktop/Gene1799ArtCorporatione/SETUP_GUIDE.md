@@ -422,6 +422,7 @@ console.log(window.ethers)  // Deve non essere undefined
 ---
 
 **Contatti Supporto:**
+- 📧 Email: gene1799artcorporatione@gmail.com
 - 📧 Email: hello@gene1799.art
 - 🐦 Twitter: @gene1799
 - 💬 Discord: https://discord.gg/gene1799

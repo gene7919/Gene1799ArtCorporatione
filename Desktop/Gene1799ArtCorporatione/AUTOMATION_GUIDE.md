@@ -297,6 +297,7 @@ Aggiungi step:
 - **GitHub**: https://github.com/gene7919/Gene1799ArtCorporatione
 - **Render**: https://dashboard.render.com
 - **Telegram Bot**: @gene1799_art_bot
+- **Email**: gene1799artcorporatione@gmail.com
 - **Setup Guide**: SETUP_GUIDE.md
 - **Deployment Checklist**: DEPLOYMENT_CHECKLIST.txt
 
