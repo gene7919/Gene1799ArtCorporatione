@@ -33,7 +33,9 @@ const CONFIG = {
         gpu: { port: 4000, name: 'GPU Service', type: 'compute', healthPath: '/health' },
         mongodb: { port: 27017, name: 'MongoDB', type: 'database', healthPath: null },
         agent: { port: 8000, name: 'Python AI Agent', type: 'agent', healthPath: '/health' },
-        orchestrator: { port: 5000, name: 'Master Orchestrator', type: 'orchestration', healthPath: '/health' }
+        orchestrator: { port: 5000, name: 'Master Orchestrator', type: 'orchestration', healthPath: '/health' },
+        creative: { port: 8002, name: 'Creative Content Service', type: 'creative', healthPath: '/health' },
+        publishing: { port: 8003, name: 'Publishing Pipeline', type: 'publishing', healthPath: '/health' }
     },
 
     AZURE_SERVICE: {
@@ -52,7 +54,11 @@ const CONFIG = {
         'security-auditor': { type: 'security', capability: 'security analysis' },
         'social-media-bot': { type: 'social', capability: 'social automation' },
         'nft-manager': { type: 'web3', capability: 'NFT operations' },
-        'drug-discovery': { type: 'pharma', capability: 'drug research' }
+        'drug-discovery': { type: 'pharma', capability: 'drug research' },
+        'music-creator': { type: 'creative', capability: 'music generation' },
+        'video-creator': { type: 'creative', capability: 'video assembly' },
+        'lyrics-writer': { type: 'creative', capability: 'lyrics generation' },
+        'content-publisher': { type: 'publishing', capability: 'multi-platform publishing' }
         // + 14 more agents configured in GENE1799 system
     },
 
@@ -258,6 +264,20 @@ class UnifiedOrchestrator extends EventEmitter {
             }
         }
 
+        // Creative content (music, video, lyrics) routes to Creative Service
+        if (domain === 'creative' || domain === 'music' || domain === 'video' || domain === 'lyrics') {
+            if (this.serviceStatus.get('creative')?.status === 'healthy') {
+                return { provider: 'creative', service: 'creative-content' };
+            }
+        }
+
+        // Publishing routes to Publishing Service
+        if (domain === 'publishing' || domain === 'social') {
+            if (this.serviceStatus.get('publishing')?.status === 'healthy') {
+                return { provider: 'publishing', service: 'publishing-pipeline' };
+            }
+        }
+
         // Check local agent capability first
         if (type !== 'general') {
             const localAgent = Object.entries(this.config.LOCAL_AGENTS).find(
@@ -310,6 +330,14 @@ class UnifiedOrchestrator extends EventEmitter {
 
                 case 'ollama':
                     result = await this.queryOllama(query, provider.model);
+                    break;
+
+                case 'creative':
+                    result = await this.queryCreativeService(query);
+                    break;
+
+                case 'publishing':
+                    result = await this.queryPublishingService(query);
                     break;
 
                 default:
@@ -406,6 +434,50 @@ class UnifiedOrchestrator extends EventEmitter {
             };
         } catch (error) {
             throw new Error(`Ollama Error: ${error.message}`);
+        }
+    }
+
+    /**
+     * Query Creative Content Service (lyrics, audio, video)
+     */
+    async queryCreativeService(query) {
+        try {
+            const response = await axios.post(
+                `http://localhost:${this.config.LOCAL_SERVICES.creative.port}/create/full`,
+                {
+                    topic: query.message || query.text || query,
+                    style: query.style || 'engaging',
+                    format: query.format || 'vertical'
+                },
+                { timeout: 120000 } // 2 min - creative tasks take longer
+            );
+
+            return response.data;
+        } catch (error) {
+            throw new Error(`Creative Service Error: ${error.message}`);
+        }
+    }
+
+    /**
+     * Query Publishing Pipeline Service
+     */
+    async queryPublishingService(query) {
+        try {
+            const response = await axios.post(
+                `http://localhost:${this.config.LOCAL_SERVICES.publishing.port}/publish`,
+                {
+                    content_id: query.content_id || `content_${Date.now()}`,
+                    platforms: query.platforms || ['all'],
+                    text: query.message || query.text || '',
+                    media_paths: query.media_paths || [],
+                    hashtags: query.hashtags || ['gene1799', 'AI', 'art']
+                },
+                { timeout: this.config.REQUEST_TIMEOUT }
+            );
+
+            return response.data;
+        } catch (error) {
+            throw new Error(`Publishing Service Error: ${error.message}`);
         }
     }
 
