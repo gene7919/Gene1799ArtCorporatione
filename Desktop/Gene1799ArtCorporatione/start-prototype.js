@@ -96,9 +96,13 @@ class PrototypeLauncher extends EventEmitter {
         this.log('Installing dependencies...');
 
         return new Promise((resolve, reject) => {
-            const npm = spawn('npm', ['install'], {
+            // On Windows, use npm.cmd instead of npm
+            const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+
+            const npm = spawn(npmCmd, ['install'], {
                 cwd: this.projectRoot,
-                stdio: 'inherit'
+                stdio: 'inherit',
+                shell: true
             });
 
             npm.on('close', (code) => {
@@ -109,6 +113,11 @@ class PrototypeLauncher extends EventEmitter {
                     this.log('Failed to install dependencies', 'error');
                     reject(new Error('npm install failed'));
                 }
+            });
+
+            npm.on('error', (error) => {
+                this.log(`npm spawn error: ${error.message}`, 'error');
+                reject(error);
             });
         });
     }
@@ -180,16 +189,22 @@ class PrototypeLauncher extends EventEmitter {
         this.log('Starting Dashboard server...');
 
         const { createServer } = require('http');
-        const dashboardPath = path.join(this.projectRoot, 'frontend', 'dashboard.html');
 
         const server = createServer((req, res) => {
             // Serve static files
-            let filePath = path.join(this.projectRoot, 'frontend', req.url === '/' ? 'dashboard.html' : req.url);
+            let filePath;
+
+            if (req.url === '/' || req.url === '/index.html') {
+                // Serve the integrated dashboard as default
+                filePath = path.join(this.projectRoot, 'frontend', 'integrated_dashboard.html');
+            } else {
+                filePath = path.join(this.projectRoot, 'frontend', req.url);
+            }
 
             fs.readFile(filePath, (err, data) => {
                 if (err) {
                     res.writeHead(404, { 'Content-Type': 'text/html' });
-                    res.end('<h1>404 Not Found</h1>');
+                    res.end('<h1>404 Not Found</h1><p>File: ' + filePath + '</p>');
                 } else {
                     const ext = path.extname(filePath);
                     const contentTypes = {
@@ -207,6 +222,7 @@ class PrototypeLauncher extends EventEmitter {
         return new Promise((resolve) => {
             server.listen(this.config.port, () => {
                 this.log(`✓ Dashboard running at http://localhost:${this.config.port}`, 'success');
+                this.log(`✓ Main: Integrated Dashboard (AI + Social + Web3)`, 'success');
                 resolve();
             });
 
