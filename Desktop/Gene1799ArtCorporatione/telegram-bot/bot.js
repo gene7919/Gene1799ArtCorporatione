@@ -128,16 +128,16 @@ class Gene1799Bot {
     }, 30000);
 
     // Promotional posts - 10:00 and 18:00 Rome time
-    schedule.cron('0 10 * * *', () => {
+    schedule.schedule('0 10 * * *', () => {
       this.sendPromotion();
     }, { timezone: 'Europe/Rome' });
 
-    schedule.cron('0 18 * * *', () => {
+    schedule.schedule('0 18 * * *', () => {
       this.sendPromotion();
     }, { timezone: 'Europe/Rome' });
 
     // Weekly recap - Every Monday at 08:00
-    schedule.cron('0 8 * * 1', () => {
+    schedule.schedule('0 8 * * 1', () => {
       this.sendWeeklyRecap();
     }, { timezone: 'Europe/Rome' });
 
