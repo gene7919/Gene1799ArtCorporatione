@@ -1,0 +1,36 @@
+# Render Preview Deployments Configuration
+services:
+  - type: web
+    name: gene1799-backend-preview
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm -w backend run start
+    routes:
+      - path: /api
+        service: gene1799-backend-preview
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  - type: static
+    name: gene1799-frontend-preview
+    buildCommand: npm install && npm -w frontend run build
+    staticPublishPath: frontend/dist
+
+  - type: background_worker
+    name: gene1799-telegram-bot
+    env: node
+    rootDir: telegram-bot
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: CHANNEL_ID
+        sync: false
+      - key: ADMIN_IDS
+        sync: false
+      - key: BASE_RPC_URL
+        value: https://mainnet.base.org
+      - key: TOKEN_CONTRACT
+        value: 0x63800f788e788e0d3a9cc0ce92a8e6c866f0f0f0

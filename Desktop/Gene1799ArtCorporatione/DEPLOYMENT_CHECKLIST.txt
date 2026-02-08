@@ -1,0 +1,561 @@
+================================================================================
+GENE1799 ART CORPORATIONE - DEPLOYMENT CHECKLIST
+Guida di Deploy Completa
+Autori: Marco Antonio Saverio Mazzitelli, Fabio Amedeo Lo Presti
+Febbraio 2026
+================================================================================
+
+📋 FASE 1: PREPARAZIONE (Giorno 1)
+================================================================================
+
+TELEGRAM BOT
+[ ] Registrare bot con @BotFather
+[ ] Generare token API
+[ ] Configurare comandi bot
+[ ] Creare canale privato (@gene1799announcements)
+[ ] Ottenere CHANNEL_ID con @getidsbot
+[ ] Ottenere ADMIN_IDS
+
+REPOSITORY GITHUB
+[ ] Clonare repo localmente
+[ ] Creare branch per feature: `git checkout -b feat/telegram-bot`
+[ ] Copiare file:
+    - telegram-bot/bot.js
+    - telegram-bot/package.json
+    - telegram-bot/.env.example
+    - backend/src/web3-integration.js
+    - backend/src/nft-loader.js
+[ ] Aggiornare .render.yaml con config bot
+[ ] Creare .gitignore per secrets
+
+CONFIGURAZIONE LOCALE
+[ ] Installarequiredipendenze:
+    ```bash
+    cd telegram-bot
+    npm install
+    ```
+[ ] Creare file .env in telegram-bot/:
+    - BOT_TOKEN = (dal @BotFather)
+    - CHANNEL_ID = (da @getidsbot)
+    - ADMIN_IDS = (il tuo ID)
+[ ] Testare bot localmente:
+    ```bash
+    npm start
+    ```
+    Aspettare: "✓ GENE1799 Telegram Bot initialized"
+
+================================================================================
+
+📋 FASE 2: PUSH SU GITHUB (Giorno 1-2)
+================================================================================
+
+GIT OPERATIONS
+[ ] Stage files:
+    ```bash
+    git add telegram-bot/ backend/src/ .render.yaml SETUP_GUIDE.md wordpress-security.conf
+    git status  # Verificare che nulla sia in .gitignore
+    ```
+
+[ ] Commit changes:
+    ```bash
+    git commit -m "feat: Aggiungi Telegram Bot, Web3 integration e docs
+
+    - Bot Telegram completo con:
+      * Notifiche vendite NFT (ogni 30s)
+      * Comandi token ($GENE1799)
+      * Gestione community (anti-spam, warnings)
+      * Promozioni automatiche (10:00 e 18:00)
+      * Recap settimanale
+
+    - Web3 integration con MetaMask
+    - NFT Loader multi-platform
+    - Render.yaml con background worker
+    - WordPress security configuration
+    - Setup guide completo in italiano
+
+    Co-Authored-By: Marco Antonio Saverio Mazzitelli <marco@gene1799.art>
+    Co-Authored-By: Fabio Amedeo Lo Presti <fabio@gene1799.art>"
+    ```
+
+[ ] Push su GitHub:
+    ```bash
+    git push origin feat/telegram-bot
+    ```
+
+GITHUB OPERATIONS
+[ ] Aprire Pull Request
+[ ] Aggiungere description dettagliata
+[ ] Aspettare approval (se branch protection è abilitato)
+[ ] Merge to main
+[ ] Eliminare branch feature
+
+================================================================================
+
+📋 FASE 3: DEPLOY SU RENDER (Giorno 2-3)
+================================================================================
+
+RENDER SETUP
+[ ] Visita https://dashboard.render.com
+[ ] Clicca "New > Background Worker"
+[ ] Connetti GitHub repo
+[ ] Configura:
+    - Name: gene1799-telegram-bot
+    - Root Directory: telegram-bot
+    - Runtime: Node
+    - Build Command: npm install
+    - Start Command: npm start
+    - Plan: Free
+
+ENVIRONMENT VARIABLES
+[ ] Aggiungi segreti in Render:
+    [ ] BOT_TOKEN = da @BotFather (non commitare!)
+    [ ] CHANNEL_ID = da @getidsbot
+    [ ] ADMIN_IDS = il tuo ID
+    [ ] NODE_ENV = production
+    [ ] BASE_RPC_URL = https://mainnet.base.org
+    [ ] TOKEN_CONTRACT = 0x63800f788e788e0d3a9cc0ce92a8e6c866f0f0f0
+
+[ ] Deploy worker background
+
+VERIFICA DEPLOY
+[ ] Aspettare 3-5 minuti per il build
+[ ] Verificare status "✓ Live" nel dashboard
+[ ] Inviare /start al bot
+[ ] Verificare welcome message
+[ ] Testare comando /help
+[ ] Testare comando /price
+
+================================================================================
+
+📋 FASE 4: CONFIGURAZIONE WORDPRESS (Giorno 3-4)
+================================================================================
+
+HOSTING SETUP
+[ ] Accedi al pannello hosting (cPanel / Plesk)
+[ ] Crea database:
+    - Nome: gene1799_db
+    - User: gene1799_user
+    - Password: 20+ caratteri (save securely)
+
+[ ] Punto IP domain a hosting
+
+WORDPRESS INSTALLATION
+[ ] Scarica WordPress dal hosting
+[ ] Naviga a gene1799artcorporatione.mom
+[ ] Completa installazione guidata:
+    - Database: gene1799_db
+    - User: gene1799_user
+    - Password: (saved above)
+    - Table prefix: g1799_ (IMPORTANTE: prima dell'install)
+    - Admin username: gene1799_admin (NON "admin"!)
+    - Admin password: 20+ caratteri
+    - Admin email: security@gene1799.art
+
+WP-CONFIG.PHP HARDENING
+[ ] SSH/FTP nel hosting
+[ ] Modifica wp-config.php:
+    ```php
+    define('DISALLOW_FILE_EDIT', true);
+    define('FORCE_SSL_ADMIN', true);
+    define('FORCE_SSL_LOGIN', true);
+    define('AUTOMATIC_UPDATER_DISABLED', true);
+    define('COOKIEHTTPONLY', true);
+    define('COOKIESECURE', true);
+    ```
+
+.HTACCESS SECURITY
+[ ] Upload file wordpress-security.conf come .htaccess
+[ ] Verifica permissions: 644
+[ ] Test blocchi:
+    - Accesso diretto a wp-login.php da VPN (deve forzare HTTPS)
+    - Tentativo accesso /wp-admin/ da HTTP (deve redirect HTTPS)
+
+PLUGIN INSTALLATION
+[ ] Wordfence Security
+    [ ] Enable firewall
+    [ ] Run scan
+    [ ] Enable 2FA
+    [ ] Configure login security
+
+[ ] WP-Optimize
+    [ ] Enable caching
+    [ ] Schedule cleanup
+
+[ ] Yoast SEO
+    [ ] Configure sitemap
+
+[ ] WPCode
+    [ ] Per inserire script Web3
+
+WORDPRESS SECURITY
+[ ] Cambia permessi file:
+    - wp-config.php: 400
+    - .htaccess: 644
+    - wp-admin/: 755
+
+[ ] Disabilita XML-RPC (in Wordfence)
+[ ] Limita tentativi login (5 per minuto)
+[ ] Abilita 2FA per admin
+
+================================================================================
+
+📋 FASE 5: WEB3 INTEGRATION (Giorno 4)
+================================================================================
+
+WORDPRESS WEB3 SETUP
+[ ] Carica file Web3:
+    - web3-integration.js → /wp-content/uploads/
+    - nft-loader.js → /wp-content/uploads/
+
+[ ] In WPCode, aggiungi al Header:
+    ```html
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.umd.min.js"></script>
+    <script src="/wp-content/uploads/web3-integration.js"></script>
+    <script src="/wp-content/uploads/nft-loader.js"></script>
+    ```
+
+CREA PAGINE WORDPRESS
+[ ] New Page: "Connect Wallet"
+    - Contenuto: <div id="wallet-status"></div>
+    - Custom code snippet per button
+
+[ ] New Page: "NFT Gallery"
+    - Contenuto: <div id="nft-gallery"></div>
+    - Load con nft-loader.js
+
+[ ] New Page: "Token Info"
+    - Link a DEX
+    - Mostra price in real-time
+
+WEB3 TESTING
+[ ] Installa MetaMask su browser
+[ ] Vai a pagina "Connect Wallet"
+[ ] Clicca button → MetaMask popup deve apparire
+[ ] Seleziona Base network
+[ ] Verifica display address
+[ ] Testa /price in Telegram Bot
+[ ] Verifica fetch NFT da Zora
+
+================================================================================
+
+📋 FASE 6: DNS & SSL (Giorno 5)
+================================================================================
+
+PORKBUN DNS CONFIGURATION
+[ ] Accedi a https://porkbun.com
+[ ] Clicca gene1799artcorporatione.mom
+[ ] Advanced DNS Settings:
+
+    A RECORD (Hosting)
+    [ ] Subdomain: @
+    [ ] Type: A
+    [ ] IP: [Your hosting IP]
+    [ ] TTL: 600
+
+    TXT RECORD (SPF)
+    [ ] Subdomain: @
+    [ ] Type: TXT
+    [ ] Value: v=spf1 -all
+    [ ] TTL: 600
+
+    TXT RECORD (DMARC)
+    [ ] Subdomain: _dmarc
+    [ ] Type: TXT
+    [ ] Value: v=DMARC1; p=quarantine; rua=mailto:security@gene1799.art
+    [ ] TTL: 600
+
+    CAA RECORD (SSL)
+    [ ] Subdomain: @
+    [ ] Type: CAA
+    [ ] Values:
+        - 0 issue "letsencrypt.org"
+        - 0 issuewild "letsencrypt.org"
+
+SSL CERTIFICATE
+[ ] Porkbun → Get Free SSL Certificate
+[ ] Scegli Let's Encrypt
+[ ] Attiva auto-renewal
+[ ] Aspettare 15 minuti per provisioning
+
+[ ] Verifica SSL:
+    ```bash
+    openssl s_client -connect gene1799artcorporatione.mom:443
+    ```
+
+DNSSEC & SECURITY
+[ ] Abilita DNSSEC in Porkbun
+[ ] Abilita Domain Lock
+[ ] Abilita Registration Lock
+[ ] Setup 2FA per Porkbun account
+
+DNS PROPAGATION
+[ ] Aspetta fino a 48 ore (di solito < 2 ore)
+[ ] Verifica propagazione:
+    - https://mxtoolbox.com (lookup A record per gene1799artcorporatione.mom)
+    - https://ssl-checker.com
+
+================================================================================
+
+📋 FASE 7: GITHUB SECURITY (Giorno 5)
+================================================================================
+
+GITHUB 2FA
+[ ] Visita https://github.com/settings/security
+[ ] Abilita two-factor authentication
+[ ] Scegli authenticator app (Google/Authy/Microsoft)
+[ ] Save recovery codes in secure location
+
+BRANCH PROTECTION
+[ ] Repository > Settings > Branches
+[ ] Add rule for 'main' branch:
+    [ ] Require pull request reviews before merging
+    [ ] Require status checks to pass
+    [ ] Dismiss stale pull request approvals
+    [ ] Require branches to be up to date
+
+GITHUB SECRETS
+[ ] Repository > Settings > Secrets > Actions
+[ ] Aggiungi:
+    [ ] BOT_TOKEN
+    [ ] CHANNEL_ID
+    [ ] ADMIN_IDS
+    [ ] RENDER_API_KEY (per future automations)
+    [ ] PORKBUN_API_KEY (per DNS management)
+
+DEPENDABOT
+[ ] Settings > Code security & analysis
+[ ] Enable:
+    [ ] Dependabot alerts
+    [ ] Dependabot security updates
+    [ ] Auto-merge for security updates
+
+================================================================================
+
+📋 FASE 8: MONITORING & ALERTS (Giorno 6)
+================================================================================
+
+UPTIME MONITORING
+[ ] Visita https://uptimerobot.com
+[ ] Create account
+[ ] Add monitor:
+    - Name: "GENE1799 Main Site"
+    - Protocol: HTTPS
+    - URL: https://gene1799artcorporatione.mom
+    - Interval: 5 minutes
+    - Alert contacts: email
+    - Alert thresholds: > 5 minutes down
+
+SSL MONITORING
+[ ] SSLMate account
+[ ] Monitor gene1799artcorporatione.mom
+[ ] Alert for expiry: 30 days
+
+RENDER MONITORING
+[ ] Render dashboard > Notifications
+[ ] Enable email for:
+    [ ] Deploy failed
+    [ ] Deploy succeeded
+    [ ] Service down
+
+TELEGRAM BOT MONITORING
+[ ] Setup logging in bot.js (cerca console.log)
+[ ] Render > Logs per verificare status
+[ ] Telegram: Ricevi alert se bot offline
+
+================================================================================
+
+📋 FASE 9: BACKUP & DISASTER RECOVERY (Giorno 7)
+================================================================================
+
+WORDPRESS BACKUPS
+[ ] InstallBackWPup plugin
+[ ] Configure backup schedule: Daily
+[ ] Backup destination: Cloud storage (Google Drive / Dropbox)
+[ ] What to backup:
+    [ ] Database
+    [ ] plugins/
+    [ ] themes/
+    [ ] uploads/
+    [ ] wp-config.php
+
+GITHUB BACKUPS
+[ ] Already distributed across GitHub servers
+[ ] Local backup: `git clone --mirror [repo] backup/`
+[ ] Esegui weekly
+
+DATABASE BACKUPS
+[ ] Hosting: automated backups (daily)
+[ ] Verify retention: 30 days
+[ ] Download weekly backup locally
+
+DISASTER RECOVERY PLAN
+[ ] Documento che contiene:
+    - Istruzioni per restore WordPress
+    - Istruzioni per restore database
+    - Istruzioni per re-deploy Telegram Bot
+    - Istruzioni per DNS failover
+    - Contatti provider support
+
+================================================================================
+
+📋 FASE 10: GO LIVE & FINAL VERIFICATION (Giorno 8)
+================================================================================
+
+PRE-LAUNCH CHECKLIST
+
+FUNCTIONALITY TESTS
+[ ] Visita gene1799artcorporatione.mom
+[ ] Pagina carica completamente
+[ ] Link funzionano
+[ ] CSS/Design corretto
+
+[ ] Telegram Bot:
+    [ ] /start → message
+    [ ] /price → fetches live data
+    [ ] /balance 0x... → balance displayed
+    [ ] /nft → collections listed
+    [ ] /gallery → exhibitions shown
+    [ ] /social → links working
+    [ ] /about → info displayed
+
+[ ] Web3 Integration:
+    [ ] MetaMask button works
+    [ ] Can connect wallet
+    [ ] Display user balance
+    [ ] NFT gallery loads
+
+[ ] Security:
+    [ ] HTTPS working (no warnings)
+    [ ] Wordfence WAS fully scanned (0 issues)
+    [ ] .htaccess protecting admin
+    [ ] XML-RPC disabled
+
+PERFORMANCE TESTING
+[ ] Google PageSpeed Insights > 80
+[ ] Mobile responsive check
+[ ] Load testing (50 concurrent users)
+[ ] Database query optimization
+
+FINAL GO-LIVE
+[ ] Announce on all social:
+    [ ] Twitter/X
+    [ ] Instagram
+    [ ] Discord
+    [ ] Zora (@gene1799)
+    [ ] Telegram (@gene1799_art_bot)
+
+[ ] Create launch tweet:
+    """
+    🚀 GENE1799 ART CORPORATIONE LIVE!
+
+    🌐 Website: gene1799artcorporatione.mom
+    🤖 Telegram Bot: @gene1799_art_bot
+    🖼️ NFT Collections: zora.co/@gene1799
+    🪙 Token: $GENE1799 on Base Network
+
+    🔗 [link]
+    """
+
+[ ] Send notification to:
+    - Newsletter subscribers
+    - Discord community
+    - Telegram channel
+
+================================================================================
+
+📋 POST-LAUNCH (Week 1-2)
+================================================================================
+
+MONITORING
+[ ] Daily checks:
+    - [ ] Bot status in Render dashboard
+    - [ ] WordPress uptime on UptimeRobot
+    - [ ] GitHub status page
+
+[ ] Weekly:
+    - [ ] Check Wordfence security reports
+    - [ ] Review bot logs for errors
+    - [ ] Verify backup completion
+    - [ ] Check for failed deployments
+
+ENGAGEMENT
+[ ] Daily:
+    - [ ] Respond to bot commands
+    - [ ] Monitor Telegram chat
+    - [ ] Check website analytics
+
+[ ] Weekly:
+    - [ ] Publishing schedule (2-3 posts)
+    - [ ] Telegram recap
+    - [ ] NFT mint schedule
+
+OPTIMIZATION
+[ ] Week 1:
+    - [ ] Analyze traffic patterns
+    - [ ] Fetch feedback from community
+    - [ ] Fix any issues
+
+[ ] Week 2:
+    - [ ] Optimize bot responses
+    - [ ] Add new promotions
+    - [ ] Plan next features
+
+================================================================================
+
+🎯 SUCCESS CRITERIA
+================================================================================
+
+✅ MUST HAVE
+[ ] Telegram Bot è live e tutti i comandi funzionano
+[ ] WordPress sito è online e sicuro
+[ ] Web3 integration non ha errori di browser
+[ ] NFT gallery carica da almeno Zora
+[ ] Bot notifiche vendite NFT arrivano al canale
+[ ] SSL certificato attivo
+[ ] GitHub secrets configurati (nessun leak)
+[ ] DNS propagato globalmente
+
+✅ SHOULD HAVE
+[ ] Wordfence security scan green
+[ ] PageSpeed > 80
+[ ] Monitoring alerts configurati
+[ ] Backup automatici funzionanti
+[ ] 2FA abilitato ovunque
+
+✅ NICE TO HAVE
+[ ] Rate limiting funzionante
+[ ] Analytics tracking setup
+[ ] CDN configurato
+[ ] Email notifications dal bot
+
+================================================================================
+
+📞 SUPPORTO & CONTATTI
+================================================================================
+
+Emergency Contacts:
+- Marco Antonio Saverio Mazzitelli: marco@gene1799.art
+- Fabio Amedeo Lo Presti: fabio@gene1799.art
+
+Technical Support:
+- Render: support@render.com
+- Porkbun: support@porkbun.com
+- WordPress: wordpress.org/support
+
+Community:
+- Discord: https://discord.gg/gene1799
+- Telegram: @gene1799_art_bot
+- Twitter: @gene1799
+
+================================================================================
+
+DEPLOYMENT COMPLETE! 🎉
+
+Data di completamento: _______________
+Testato da: _______________
+Approvato da: _______________
+
+Versione: 1.0.0
+Data: Febbraio 2026
+
+================================================================================
