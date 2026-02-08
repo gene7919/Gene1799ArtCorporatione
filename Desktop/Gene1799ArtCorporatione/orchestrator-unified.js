@@ -278,6 +278,13 @@ class UnifiedOrchestrator extends EventEmitter {
             }
         }
 
+        // GPU rendering routes to GPU Service
+        if (domain === 'gpu' || domain === 'render' || domain === 'image') {
+            if (this.serviceStatus.get('gpu')?.status === 'healthy') {
+                return { provider: 'gpu', service: 'gpu-service' };
+            }
+        }
+
         // Check local agent capability first
         if (type !== 'general') {
             const localAgent = Object.entries(this.config.LOCAL_AGENTS).find(
@@ -338,6 +345,10 @@ class UnifiedOrchestrator extends EventEmitter {
 
                 case 'publishing':
                     result = await this.queryPublishingService(query);
+                    break;
+
+                case 'gpu':
+                    result = await this.queryGpuService(query);
                     break;
 
                 default:
@@ -478,6 +489,59 @@ class UnifiedOrchestrator extends EventEmitter {
             return response.data;
         } catch (error) {
             throw new Error(`Publishing Service Error: ${error.message}`);
+        }
+    }
+
+    /**
+     * Query GPU Service (rendering, encoding, effects)
+     */
+    async queryGpuService(query) {
+        try {
+            // Determine which GPU endpoint to call based on the query
+            const gpuPort = this.config.LOCAL_SERVICES.gpu.port;
+            let endpoint = '/render/image';
+            let payload = {
+                type: query.type || 'thumbnail',
+                title: query.title || query.message || 'GENE1799',
+                subtitle: query.subtitle || null,
+                width: query.width || 1080,
+                height: query.height || 1080,
+                style: query.style || 'neon'
+            };
+
+            if (query.action === 'video' || query.input_path) {
+                endpoint = '/render/video';
+                payload = {
+                    input_path: query.input_path,
+                    codec: query.codec || 'h264_nvenc',
+                    resolution: query.resolution || null,
+                    bitrate: query.bitrate || '4M',
+                    preset: query.preset || 'fast'
+                };
+            } else if (query.action === 'effect') {
+                endpoint = '/render/effect';
+                payload = {
+                    input_path: query.input_path,
+                    effects: query.effects || ['brand_watermark'],
+                    watermark_text: query.watermark_text || 'GENE1799'
+                };
+            } else if (query.action === 'metrics') {
+                const response = await axios.get(
+                    `http://localhost:${gpuPort}/gpu/metrics`,
+                    { timeout: 5000 }
+                );
+                return response.data;
+            }
+
+            const response = await axios.post(
+                `http://localhost:${gpuPort}${endpoint}`,
+                payload,
+                { timeout: 120000 }
+            );
+
+            return response.data;
+        } catch (error) {
+            throw new Error(`GPU Service Error: ${error.message}`);
         }
     }
 
