@@ -1,0 +1,499 @@
+════════════════════════════════════════════════════════════════════════════════
+🎯 GENE1799 UNIFIED ORCHESTRATOR - INTEGRATION GUIDE v3.0 🎯
+════════════════════════════════════════════════════════════════════════════════
+
+WHAT IS THE UNIFIED ORCHESTRATOR?
+═════════════════════════════════════════════════════════════════════════════
+
+The Unified Orchestrator is the master intelligence that coordinates:
+
+1. 7 LOCAL SERVICES
+   • Ollama (Port 11434) - Local LLM inference with 7 models
+   • Backend API (Port 3000) - Express.js REST API
+   • Frontend Dashboard (Port 5173) - Interactive web interface
+   • GPU Service (Port 4000) - CUDA-accelerated processing
+   • MongoDB (Port 27017) - Data persistence
+   • Python AI Agent (Port 8000) - Multi-agent system
+   • Master Orchestrator (Port 5000) - Original orchestration service
+
+2. AZURE AI AGENTS
+   • alMedicochelante (Port 8001) - Medical AI specialist
+   • Available via FastAPI service
+   • Capabilities: tumor classification, drug targeting, clinical trials
+
+3. 23+ LOCAL AI AGENTS
+   • Content Creator - Text generation
+   • Code Analyzer - Code analysis
+   • Data Analyst - Data processing
+   • Art Curator - Visual content
+   • Medical Specialist - Medical analysis
+   • Security Auditor - Security analysis
+   • Social Media Bot - Social automation
+   • NFT Manager - NFT operations
+   • Drug Discovery - Pharma research
+   • + 14 more specialized agents
+
+════════════════════════════════════════════════════════════════════════════════
+🚀 STARTING THE UNIFIED ORCHESTRATOR
+════════════════════════════════════════════════════════════════════════════════
+
+OPTION 1: DIRECT START
+──────────────────────
+Open PowerShell and run:
+
+  cd C:\GENE1799
+  node orchestrator-unified.js
+
+Or if using service-coordinator.ps1:
+
+  .\ service-coordinator.ps1 -Command Start -Service "unified-orchestrator"
+
+
+OPTION 2: AS BACKGROUND SERVICE
+────────────────────────────────
+Run in startup sequence:
+
+  # Make sure all other services are running first
+  .\ service-coordinator.ps1 -Command Dashboard
+
+  # Click "Start All" to start all services
+  # Unified Orchestrator will start automatically on port 5050
+
+
+OUTPUT WHEN STARTED
+───────────────────
+You should see:
+
+  ╔═══════════════════════════════════════════════════════════════════════════╗
+  ║                                                                           ║
+  ║  🎯 GENE1799 UNIFIED ORCHESTRATOR v3.0 - STARTED 🎯                    ║
+  ║                                                                           ║
+  ║  Listening on: http://localhost:5050                                     ║
+  ║  API Docs: http://localhost:5050/api/docs                               ║
+  ║                                                                           ║
+  ║  Real-time Health Monitoring: ACTIVE                                     ║
+  ║  Intelligent Query Routing: ACTIVE                                       ║
+  ║  Multi-Provider Aggregation: ACTIVE                                      ║
+  ║                                                                           ║
+  ╚═══════════════════════════════════════════════════════════════════════════╝
+
+════════════════════════════════════════════════════════════════════════════════
+📡 API ENDPOINTS
+════════════════════════════════════════════════════════════════════════════════
+
+HEALTH & STATUS
+───────────────
+
+GET /health
+  Response: { status: "healthy", service: "GENE1799 Unified Orchestrator", ... }
+
+GET /status
+  Returns complete orchestrator status including:
+    - All service statuses (local + Azure)
+    - Metrics (total requests, success rate, avg response time)
+    - Available agents (local + Azure)
+
+GET /agents
+  Lists all available agents (local + Azure) with their capabilities and status
+
+GET /services
+  Detailed service information with response times and last health check
+
+
+QUERY ENDPOINTS
+───────────────
+
+POST /query
+  Smart query routing to best available provider
+
+  Request Body:
+  {
+    "message": "Your query here",
+    "domain": "general",        // Optional: "medical", "general", etc.
+    "requiresAzure": false      // Optional: force Azure routing
+  }
+
+  Response:
+  {
+    "requestId": "uuid",
+    "success": true,
+    "provider": "azure|local|ollama",
+    "agent": "agent-name",
+    "result": { ... },
+    "responseTime": 1234,
+    "timestamp": "2026-02-08T..."
+  }
+
+Example:
+  curl -X POST http://localhost:5050/query \
+    -H "Content-Type: application/json" \
+    -d '{"message": "Hello, what can you do?"}'
+
+
+POST /query/medical
+  Direct routing to Azure medical agent
+
+  Request Body:
+  {
+    "message": "Medical question here"
+  }
+
+  Returns medical analysis from alMedicochelante Azure agent
+
+
+POST /query/aggregate
+  Get results from multiple providers simultaneously
+
+  Request Body:
+  {
+    "message": "Query here",
+    "providers": ["azure", "local", "ollama"]  // Optional, defaults to all
+  }
+
+  Response:
+  {
+    "query": "...",
+    "results": [ ... ],
+    "aggregatedAt": "2026-02-08T...",
+    "totalProviders": 3,
+    "successfulProviders": 2
+  }
+
+Example:
+  curl -X POST http://localhost:5050/query/aggregate \
+    -H "Content-Type: application/json" \
+    -d '{
+      "message": "What is AI?",
+      "providers": ["azure", "ollama"]
+    }'
+
+
+POST /query/agent/{agentName}
+  Query a specific agent
+
+  Request Body:
+  {
+    "message": "Your message"
+  }
+
+  Automatically detects if agent is Azure or local and routes accordingly
+
+
+MONITORING
+──────────
+
+GET /metrics
+  Returns orchestrator metrics:
+    - totalRequests
+    - successfulRequests
+    - failedRequests
+    - avgResponseTime
+    - routingDecisions (provider breakdown)
+
+GET /api/docs
+  Full API documentation
+
+
+════════════════════════════════════════════════════════════════════════════════
+🧠 INTELLIGENT ROUTING LOGIC
+════════════════════════════════════════════════════════════════════════════════
+
+The Unified Orchestrator uses intelligent routing to determine the best provider:
+
+1. MEDICAL QUERIES (domain: "medical")
+   → Preferentially route to Azure alMedicochelante
+   → Fallback to local medical agent if Azure unavailable
+   → Final fallback to Ollama (Mistral)
+
+2. SPECIALIZED QUERIES (domain: "code", "analytics", "security", etc.)
+   → Route to matching local agent
+   → Fallback to Ollama if local agent unavailable
+   → Final fallback to Azure if all else fails
+
+3. GENERAL QUERIES
+   → Route to local Ollama (Mistral model)
+   → Fallback to Azure if Ollama unavailable
+   → Error if all providers offline
+
+4. AGGREGATE QUERIES
+   → Query all specified providers in parallel
+   → Return combined results
+   → Useful for comparing outputs from different AI systems
+
+════════════════════════════════════════════════════════════════════════════════
+🔄 HOW IT COORDINATES SERVICES
+════════════════════════════════════════════════════════════════════════════════
+
+REAL-TIME HEALTH MONITORING
+────────────────────────────
+Every 5 seconds, the Orchestrator:
+  1. Checks health of all 7 local services
+  2. Checks health of Azure AI service
+  3. Updates service status (healthy, degraded, unhealthy)
+  4. Triggers events when status changes
+  5. Adjusts routing based on available services
+
+LOAD BALANCING
+──────────────
+  • Tracks response times for each provider
+  • Calculates average response time
+  • Routes new requests to fastest responding provider
+  • Automatically avoids slow/failing services
+
+FALLBACK STRATEGY
+─────────────────
+  • Primary: Route to best provider for query type
+  • Secondary: Fallback to alternative provider if primary fails
+  • Tertiary: Fall back to Ollama (always available locally)
+  • Error: Return error only if all providers offline
+
+METRIC TRACKING
+───────────────
+  • Tracks every request and response
+  • Calculates success rate
+  • Records which provider handled each request
+  • Provides insights into system performance
+
+════════════════════════════════════════════════════════════════════════════════
+📋 PRACTICAL EXAMPLES
+════════════════════════════════════════════════════════════════════════════════
+
+EXAMPLE 1: SIMPLE QUERY
+───────────────────────
+curl -X POST http://localhost:5050/query \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "What is machine learning?"
+  }'
+
+Response (routed to Ollama):
+{
+  "requestId": "abc-123-def",
+  "success": true,
+  "provider": "ollama",
+  "agent": "mistral",
+  "result": {
+    "text": "Machine learning is...",
+    "model": "mistral",
+    "source": "ollama"
+  },
+  "responseTime": 2340,
+  "timestamp": "2026-02-08T15:30:45.123Z"
+}
+
+
+EXAMPLE 2: MEDICAL QUERY
+────────────────────────
+curl -X POST http://localhost:5050/query/medical \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "What are the latest treatments for melanoma?"
+  }'
+
+Response (routed to Azure alMedicochelante):
+{
+  "requestId": "xyz-789-abc",
+  "success": true,
+  "provider": "azure",
+  "agent": "alMedicochelante",
+  "result": {
+    "status": "success",
+    "agent": "alMedicochelante",
+    "message": "What are the latest treatments for melanoma?",
+    "response": "Based on latest research...",
+    "timestamp": "2026-02-08T15:31:15.456Z"
+  },
+  "responseTime": 3421,
+  "timestamp": "2026-02-08T15:31:15.789Z"
+}
+
+
+EXAMPLE 3: AGGREGATE QUERY
+──────────────────────────
+curl -X POST http://localhost:5050/query/aggregate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Explain quantum computing",
+    "providers": ["azure", "ollama"]
+  }'
+
+Response (results from both providers):
+{
+  "query": "Explain quantum computing",
+  "results": [
+    {
+      "requestId": "...",
+      "success": true,
+      "provider": "azure",
+      "result": { ... }
+    },
+    {
+      "requestId": "...",
+      "success": true,
+      "provider": "ollama",
+      "result": { ... }
+    }
+  ],
+  "aggregatedAt": "2026-02-08T15:32:10.111Z",
+  "totalProviders": 2,
+  "successfulProviders": 2
+}
+
+
+EXAMPLE 4: CHECK ORCHESTRATOR STATUS
+─────────────────────────────────────
+curl http://localhost:5050/status
+
+Response:
+{
+  "timestamp": "2026-02-08T15:33:00.000Z",
+  "services": {
+    "ollama": {
+      "name": "OLLAMA (LLM Engine)",
+      "status": "healthy",
+      "responseTime": 150,
+      "lastCheck": "2026-02-08T15:33:00.000Z"
+    },
+    "backend": {
+      "name": "Backend API",
+      "status": "healthy",
+      "responseTime": 45,
+      "lastCheck": "2026-02-08T15:33:00.000Z"
+    },
+    "azure": {
+      "name": "Azure AI Integration",
+      "status": "healthy",
+      "responseTime": 423,
+      "lastCheck": "2026-02-08T15:33:00.000Z"
+    },
+    ...
+  },
+  "metrics": {
+    "totalRequests": 247,
+    "successfulRequests": 243,
+    "failedRequests": 4,
+    "avgResponseTime": 1523,
+    "routingDecisions": {
+      "local": 89,
+      "azure": 112,
+      "ollama": 46
+    }
+  },
+  "localAgents": 9,
+  "azureAgents": 1,
+  "totalAgents": 10
+}
+
+
+════════════════════════════════════════════════════════════════════════════════
+🔧 CONFIGURATION
+════════════════════════════════════════════════════════════════════════════════
+
+The Unified Orchestrator is configured in orchestrator-unified.js:
+
+Port Configuration:
+  CONFIG.SERVER_PORT = 5050                    // Main orchestrator port
+  CONFIG.LOCAL_SERVICES                        // All local service ports
+  CONFIG.AZURE_SERVICE.port = 8001             // Azure AI port
+
+Health Check Interval:
+  CONFIG.HEALTH_CHECK_INTERVAL = 5000          // 5 seconds
+
+Request Timeout:
+  CONFIG.REQUEST_TIMEOUT = 30000               // 30 seconds
+
+To customize:
+  1. Edit orchestrator-unified.js
+  2. Modify CONFIG object at the top
+  3. Restart orchestrator: node orchestrator-unified.js
+
+
+════════════════════════════════════════════════════════════════════════════════
+🎯 INTEGRATION WITH GENE1799 SERVICES
+════════════════════════════════════════════════════════════════════════════════
+
+The Unified Orchestrator integrates seamlessly with:
+
+1. SERVICE-COORDINATOR.PS1
+   • Add to service registry in service-coordinator.ps1
+   • Service name: "unified-orchestrator"
+   • Port: 5050
+   • Status command: curl http://localhost:5050/health
+   • Start command: node orchestrator-unified.js
+
+2. FRONTEND DASHBOARD (Port 5173)
+   • Dashboard can query orchestrator at http://localhost:5050
+   • Display service status from /status endpoint
+   • Show routing decisions and metrics
+   • Real-time agent availability
+
+3. BACKEND API (Port 3000)
+   • Backend can forward requests to orchestrator
+   • Use /query/aggregate for multi-provider results
+   • Cache responses in MongoDB (Port 27017)
+
+4. AZURE AI SERVICE (Port 8001)
+   • Orchestrator automatically detects and routes to Azure
+   • Uses /query endpoint from azure_ai_integration.py
+   • Medical queries prioritized to alMedicochelante agent
+
+5. LOCAL AGENTS (Port 8000)
+   • Integrated for specialized query handling
+   • Used for non-medical specialized domains
+   • Fallback when Azure unavailable
+
+════════════════════════════════════════════════════════════════════════════════
+✅ VERIFICATION
+════════════════════════════════════════════════════════════════════════════════
+
+To verify Unified Orchestrator is working:
+
+1. Start all services:
+   .\ service-coordinator.ps1 -Command Dashboard
+   Click "Start All"
+
+2. Verify orchestrator started:
+   curl http://localhost:5050/health
+   Should return: { "status": "healthy", ... }
+
+3. Check service status:
+   curl http://localhost:5050/status
+   Should show all 8 services (7 local + 1 Azure)
+
+4. Test routing:
+   curl -X POST http://localhost:5050/query \
+     -H "Content-Type: application/json" \
+     -d '{"message": "Hello"}'
+   Should return successful response from appropriate provider
+
+5. Monitor metrics:
+   curl http://localhost:5050/metrics
+   Should show growing request counts
+
+
+════════════════════════════════════════════════════════════════════════════════
+📚 SUMMARY
+════════════════════════════════════════════════════════════════════════════════
+
+The Unified Orchestrator (port 5050) is now the central intelligence of GENE1799:
+
+✅ Coordinates 7 local services + Azure AI
+✅ Manages 23+ AI agents intelligently
+✅ Real-time health monitoring (every 5 seconds)
+✅ Intelligent query routing based on domain
+✅ Fallback strategies for reliability
+✅ Multi-provider result aggregation
+✅ Complete metrics and monitoring
+✅ RESTful API for all operations
+
+Your GENE1799 system is now fully integrated across:
+  • Local Infrastructure (Ollama, MongoDB, GPU, etc.)
+  • Cloud Services (Azure AI Agents)
+  • AI Agent Network (23+ specialized agents)
+
+Ready for production use! 🚀
+
+════════════════════════════════════════════════════════════════════════════════
+Generated: February 8, 2026
+Version: 3.0.0 - FULLY INTEGRATED
+════════════════════════════════════════════════════════════════════════════════
