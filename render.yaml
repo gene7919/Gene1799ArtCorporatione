@@ -11,29 +11,86 @@ services:
     autoDeploy: true
 
     envVars:
+      # Server Configuration
       - key: NODE_ENV
         value: production
 
       - key: PORT
         value: 10000
 
+      # Security
       - key: JWT_SECRET
         generateValue: true
 
       - key: SESSION_SECRET
         generateValue: true
 
+      - key: CORS_ORIGIN
+        value: "*"
+
+      - key: RATE_LIMIT_MAX
+        value: 1000
+
+      # AI Services (Add your keys in Render dashboard)
       - key: OPENAI_API_KEY
         sync: false
 
       - key: ANTHROPIC_API_KEY
         sync: false
 
-      - key: ETHEREUM_RPC_URL
+      - key: STABILITY_API_KEY
         sync: false
 
-      - key: CORS_ORIGIN
-        value: "*"
+      - key: RUNWAYML_API_KEY
+        sync: false
 
-      - key: RATE_LIMIT_MAX
-        value: 1000
+      # Web3 & Blockchain
+      - key: ETHEREUM_RPC_URL
+        value: https://mainnet.base.org
+
+      - key: TOKEN_CONTRACT_ADDRESS
+        value: "0x63800f788e788e0d3a9cc0ce92a8e6c866f0f0f0"
+
+      - key: CHAIN_ID
+        value: "8453"
+
+      # Social Media
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+
+      - key: TELEGRAM_CHANNEL_ID
+        sync: false
+
+      - key: TELEGRAM_ADMIN_ID
+        sync: false
+
+      # Feature Flags
+      - key: ENABLE_AI_AGENTS
+        value: true
+
+      - key: ENABLE_CONTENT_CREATION
+        value: true
+
+      - key: ENABLE_SOCIAL_AUTOMATION
+        value: true
+
+      - key: ENABLE_WEB3
+        value: true
+
+      - key: ENABLE_TELEGRAM_BOT
+        value: true
+
+      - key: ENABLE_AUTO_HEALING
+        value: true
+
+      - key: ENABLE_LEARNING_ENGINE
+        value: true
+
+      # Python Configuration
+      - key: PYTHON_PATH
+        value: python3
+
+      # Logging
+      - key: LOG_LEVEL
+        value: info
+

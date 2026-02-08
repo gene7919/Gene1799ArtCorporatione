@@ -9,6 +9,20 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - PYTHON_PATH=/app/venv/bin/python3
+      # AI Services (add your keys)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - STABILITY_API_KEY=${STABILITY_API_KEY:-}
+      - RUNWAYML_API_KEY=${RUNWAYML_API_KEY:-}
+      # Feature flags
+      - ENABLE_AI_AGENTS=true
+      - ENABLE_CONTENT_CREATION=true
+      - ENABLE_SOCIAL_AUTOMATION=true
+      - ENABLE_WEB3=true
+      - ENABLE_TELEGRAM_BOT=true
+      - ENABLE_AUTO_HEALING=true
+      - ENABLE_LEARNING_ENGINE=true
     volumes:
       - ./database:/app/database
       - ./logs:/app/logs
@@ -25,3 +39,4 @@ volumes:
   database:
   logs:
   uploads:
+
