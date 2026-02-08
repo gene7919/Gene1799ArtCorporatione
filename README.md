@@ -7,9 +7,9 @@
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Status](https://img.shields.io/badge/status-production%20ready-success)
 
-**Advanced AI-Powered Art & Content Creation Platform**
+**Advanced AI-Powered Art & Content Creation Platform with Gene1799 Orchestrator Core**
 
-[Features](#features) • [Quick Start](#quick-start) • [API Documentation](#api-documentation) • [Deployment](#deployment) • [Contributing](#contributing)
+[Features](#features) • [Quick Start](#quick-start) • [API Documentation](#api-documentation) • [Orchestrator](#orchestrator) • [Deployment](#deployment)
 
 </div>
 
@@ -17,18 +17,21 @@
 
 ## 🚀 Overview
 
-GENE1799 ART CORPORATIONE is an enterprise-grade, fully integrated AI platform that combines multiple AI agents, content creation systems, social media automation, and blockchain integration into a unified, production-ready backend service.
+GENE1799 ART CORPORATIONE is an enterprise-grade, fully integrated AI platform powered by the Gene1799 Orchestrator Core. It combines multiple AI agents, content creation systems, social media automation, and blockchain integration into a unified, production-ready backend service.
 
 ### 🌟 Key Features
 
-- **🤖 AI Agent Orchestration** - 6 specialized AI agents for different tasks
+- **🎯 Gene1799 Orchestrator Core** - Central command system from Desktop/Gene1799ArtCorporatione
+- **🤖 6 AI Agents** - Anti-cancer, drug discovery, ML orchestrator, content creator, social media, self-healing
 - **🎨 Multi-Modal Content Creation** - Text, images, video, and music generation
 - **📱 Social Media Automation** - Multi-platform posting and analytics
+- **🧠 Learning System** - Pattern recognition and continuous improvement
+- **💾 Memory System** - TTL-based data storage and recall
 - **🔗 Web3 Integration** - NFT support and blockchain connectivity
 - **🔒 Enterprise Security** - 5-layer security matrix with rate limiting
 - **📊 Real-time Monitoring** - WebSocket support for live updates
-- **🔧 Self-Healing System** - Automatic error detection and recovery
-- **📈 Learning Engine** - Continuous improvement through ML
+- **🔧 Self-Healing** - Automatic error detection and recovery
+- **🐍 Python Bridge** - Seamless Python-Node.js integration with automatic fallback
 
 ---
 
@@ -160,6 +163,91 @@ The server will start on `http://localhost:3000`
 
 ## 📚 API Documentation
 
+### Orchestrator Core
+
+The Gene1799 Orchestrator Core is the central command system managing all AI agents and services.
+
+#### Orchestrator Health
+
+```http
+GET /api/orchestrator/health
+```
+
+Response:
+```json
+{
+  "success": true,
+  "health": {
+    "status": "operational",
+    "version": "1.0.0",
+    "uptime": "12345s",
+    "agents": {
+      "total": 6,
+      "active": 1,
+      "idle": 5
+    },
+    "metrics": {
+      "tasksProcessed": 42,
+      "learningEvents": 15
+    },
+    "queue": {
+      "pending": 0,
+      "processed": 42
+    }
+  }
+}
+```
+
+#### List All Agents
+
+```http
+GET /api/orchestrator/agents
+```
+
+#### Dispatch Task to Agent
+
+```http
+POST /api/orchestrator/tasks/dispatch
+
+{
+  "agent": "anti-cancer",
+  "task": {
+    "description": "analyze compound",
+    "parameters": {
+      "compound": "C20H25N3O"
+    }
+  }
+}
+```
+
+#### Generate Social Content
+
+```http
+POST /api/orchestrator/social/generate
+
+{
+  "topic": "New AI Art Collection",
+  "platforms": ["twitter", "instagram", "telegram"]
+}
+```
+
+Response:
+```json
+{
+  "success": true,
+  "topic": "New AI Art Collection",
+  "posts": [
+    {
+      "platform": "twitter",
+      "content": "🎨 New AI Art Collection\n\n#GENE1799 #NFT #Web3",
+      "generated": 1707422336410,
+      "readyToPublish": true
+    }
+  ],
+  "count": 3
+}
+```
+
 ### Health Check
 
 ```http
@@ -173,7 +261,11 @@ Response:
   "timestamp": "2026-02-08T20:52:16.410Z",
   "uptime": 12345,
   "version": "9.0.0",
-  "environment": "production"
+  "environment": "production",
+  "orchestrator": {
+    "status": "operational",
+    "agents": { "total": 6, "active": 0, "idle": 6 }
+  }
 }
 ```
 
