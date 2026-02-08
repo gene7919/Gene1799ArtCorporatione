@@ -1,0 +1,2 @@
+web: npm -w backend run start
+api: npm -w backend run start

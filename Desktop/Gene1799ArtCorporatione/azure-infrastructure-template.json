@@ -1,0 +1,428 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "name": "GENE1799 ART CORPORATIONE Complete Infrastructure",
+    "description": "Production-grade Azure infrastructure for GENE1799 system with Telegram bot, Web3 integration, NFT support, learning agents, and security matrix",
+    "author": "Fabio e Marco",
+    "version": "2.0.0",
+    "date": "2026-02-08"
+  },
+  "parameters": {
+    "projectName": {
+      "type": "string",
+      "defaultValue": "gene1799",
+      "metadata": {
+        "description": "Project name (used for resource naming)"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "production",
+      "allowedValues": ["development", "staging", "production"],
+      "metadata": {
+        "description": "Environment type"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "westeurope",
+      "metadata": {
+        "description": "Azure region for resources"
+      }
+    },
+    "appServiceTier": {
+      "type": "string",
+      "defaultValue": "B2",
+      "allowedValues": ["B1", "B2", "B3", "S1", "S2", "S3"],
+      "metadata": {
+        "description": "App Service plan tier"
+      }
+    },
+    "postgresqlVersion": {
+      "type": "string",
+      "defaultValue": "14",
+      "allowedValues": ["11", "12", "13", "14", "15"],
+      "metadata": {
+        "description": "PostgreSQL server version"
+      }
+    },
+    "databaseName": {
+      "type": "string",
+      "defaultValue": "gene1799db",
+      "metadata": {
+        "description": "PostgreSQL database name"
+      }
+    },
+    "administratorLogin": {
+      "type": "string",
+      "defaultValue": "gene1799admin",
+      "metadata": {
+        "description": "PostgreSQL admin username"
+      }
+    },
+    "administratorPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "PostgreSQL admin password (min 8 chars, must include uppercase, lowercase, number)"
+      }
+    }
+  },
+  "variables": {
+    "resourcePrefix": "[concat(parameters('projectName'), '-', parameters('environment'))]",
+    "appServicePlanName": "[concat(variables('resourcePrefix'), '-plan')]",
+    "appServiceName": "[concat(variables('resourcePrefix'), '-app')]",
+    "postgresqlServerName": "[concat(variables('resourcePrefix'), '-db')]",
+    "storageName": "[concat(replace(variables('resourcePrefix'), '-', ''), 'storage')]",
+    "redisCacheName": "[concat(variables('resourcePrefix'), '-cache')]",
+    "appInsightsName": "[concat(variables('resourcePrefix'), '-insights')]",
+    "vaultName": "[concat(variables('resourcePrefix'), '-vault')]",
+    "logAnalyticsName": "[concat(variables('resourcePrefix'), '-logs')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2021-02-01",
+      "name": "[variables('appServicePlanName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "project": "[parameters('projectName')]",
+        "environment": "[parameters('environment')]",
+        "component": "compute"
+      },
+      "sku": {
+        "name": "[parameters('appServiceTier')]",
+        "capacity": 1
+      },
+      "kind": "linux",
+      "properties": {
+        "reserved": true
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "name": "[variables('appServiceName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "project": "[parameters('projectName')]",
+        "environment": "[parameters('environment')]",
+        "component": "web-app"
+      },
+      "kind": "app,linux",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
+      ],
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+        "siteConfig": {
+          "linuxFxVersion": "NODE|18-lts",
+          "alwaysOn": true,
+          "http20Enabled": true,
+          "minTlsVersion": "1.2",
+          "appSettings": [
+            {
+              "name": "WEBSITE_RUN_FROM_PACKAGE",
+              "value": "1"
+            },
+            {
+              "name": "NODE_ENV",
+              "value": "[parameters('environment')]"
+            },
+            {
+              "name": "PROJECT_NAME",
+              "value": "[parameters('projectName')]"
+            },
+            {
+              "name": "DATABASE_HOST",
+              "value": "[reference(resourceId('Microsoft.DBforPostgreSQL/servers', variables('postgresqlServerName'))).fullyQualifiedDomainName]"
+            },
+            {
+              "name": "DATABASE_NAME",
+              "value": "[parameters('databaseName')]"
+            },
+            {
+              "name": "REDIS_HOST",
+              "value": "[reference(resourceId('Microsoft.Cache/redis', variables('redisCacheName'))).hostName]"
+            },
+            {
+              "name": "STORAGE_ACCOUNT",
+              "value": "[variables('storageName')]"
+            },
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName'))).InstrumentationKey]"
+            }
+          ]
+        },
+        "httpsOnly": true,
+        "publicNetworkAccessEnabled": true
+      }
+    },
+    {
+      "type": "Microsoft.DBforPostgreSQL/servers",
+      "apiVersion": "2017-12-01",
+      "name": "[variables('postgresqlServerName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "project": "[parameters('projectName')]",
+        "environment": "[parameters('environment')]",
+        "component": "database"
+      },
+      "sku": {
+        "name": "B_Gen5_2",
+        "tier": "Basic",
+        "capacity": 2,
+        "family": "Gen5"
+      },
+      "properties": {
+        "administratorLogin": "[parameters('administratorLogin')]",
+        "administratorLoginPassword": "[parameters('administratorPassword')]",
+        "version": "[parameters('postgresqlVersion')]",
+        "storageMB": 51200,
+        "backupRetentionDays": 7,
+        "geoRedundantBackup": "Disabled",
+        "autoGrowEnabled": true,
+        "sslEnforcement": "ENABLED",
+        "publicNetworkAccessEnabled": true
+      }
+    },
+    {
+      "type": "Microsoft.DBforPostgreSQL/servers/databases",
+      "apiVersion": "2017-12-01",
+      "name": "[concat(variables('postgresqlServerName'), '/', parameters('databaseName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforPostgreSQL/servers', variables('postgresqlServerName'))]"
+      ],
+      "properties": {
+        "charset": "UTF8",
+        "collation": "en_US.utf8"
+      }
+    },
+    {
+      "type": "Microsoft.DBforPostgreSQL/servers/firewallRules",
+      "apiVersion": "2017-12-01",
+      "name": "[concat(variables('postgresqlServerName'), '/AllowAzureIps')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforPostgreSQL/servers', variables('postgresqlServerName'))]"
+      ],
+      "properties": {
+        "startIpAddress": "0.0.0.0",
+        "endIpAddress": "255.255.255.255"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-04-01",
+      "name": "[variables('storageName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "project": "[parameters('projectName')]",
+        "environment": "[parameters('environment')]",
+        "component": "storage"
+      },
+      "sku": {
+        "name": "Standard_GRS"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "accessTier": "Hot",
+        "allowBlobPublicAccess": false,
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true
+      }
+    },
+    {
+      "type": "Microsoft.Cache/redis",
+      "apiVersion": "2021-06-01",
+      "name": "[variables('redisCacheName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "project": "[parameters('projectName')]",
+        "environment": "[parameters('environment')]",
+        "component": "cache"
+      },
+      "properties": {
+        "sku": {
+          "name": "Standard",
+          "family": "C",
+          "capacity": 1
+        },
+        "enableNonSslPort": false,
+        "minimumTlsVersion": "1.2",
+        "publicNetworkAccessEnabled": true,
+        "evictionPolicy": "allkeys-lru",
+        "maxmemoryPolicy": "allkeys-lru"
+      }
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02",
+      "name": "[variables('appInsightsName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "project": "[parameters('projectName')]",
+        "environment": "[parameters('environment')]",
+        "component": "monitoring"
+      },
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web",
+        "RetentionInDays": 90,
+        "publicNetworkAccessEnabled": true,
+        "ingestionMode": "ApplicationInsights"
+      }
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2021-06-01",
+      "name": "[variables('logAnalyticsName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "project": "[parameters('projectName')]",
+        "environment": "[parameters('environment')]",
+        "component": "logging"
+      },
+      "properties": {
+        "sku": {
+          "name": "PerGB2018"
+        },
+        "retentionInDays": 30,
+        "publicNetworkAccessEnabled": true
+      }
+    },
+    {
+      "type": "Microsoft.Insights/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "name": "[concat(variables('appServiceName'), '-diagnostics')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('appServiceName'))]",
+        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
+      ],
+      "properties": {
+        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]",
+        "logs": [
+          {
+            "category": "AppServiceHTTPLogs",
+            "enabled": true,
+            "retentionPolicy": {
+              "enabled": true,
+              "days": 30
+            }
+          }
+        ],
+        "metrics": [
+          {
+            "category": "AllMetrics",
+            "enabled": true,
+            "retentionPolicy": {
+              "enabled": true,
+              "days": 30
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Insights/autoscalesettings",
+      "apiVersion": "2015-04-01",
+      "name": "[concat(variables('appServiceName'), '-autoscale')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
+      ],
+      "properties": {
+        "profiles": [
+          {
+            "name": "Auto scale based on CPU",
+            "capacity": {
+              "minimum": "1",
+              "maximum": "5",
+              "default": "1"
+            },
+            "rules": [
+              {
+                "metricTrigger": {
+                  "metricName": "CpuPercentage",
+                  "metricResourceUri": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+                  "timeGrain": "PT1M",
+                  "statistic": "Average",
+                  "timeWindow": "PT5M",
+                  "timeAggregation": "Average",
+                  "operator": "GreaterThan",
+                  "threshold": 80
+                },
+                "scaleAction": {
+                  "direction": "Increase",
+                  "type": "ChangeCount",
+                  "value": "1",
+                  "cooldown": "PT5M"
+                }
+              },
+              {
+                "metricTrigger": {
+                  "metricName": "CpuPercentage",
+                  "metricResourceUri": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+                  "timeGrain": "PT1M",
+                  "statistic": "Average",
+                  "timeWindow": "PT5M",
+                  "timeAggregation": "Average",
+                  "operator": "LessThan",
+                  "threshold": 40
+                },
+                "scaleAction": {
+                  "direction": "Decrease",
+                  "type": "ChangeCount",
+                  "value": "1",
+                  "cooldown": "PT5M"
+                }
+              }
+            ]
+          }
+        ],
+        "enabled": true,
+        "targetResourceUri": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
+      }
+    }
+  ],
+  "outputs": {
+    "appServiceUrl": {
+      "type": "string",
+      "value": "[concat('https://', reference(resourceId('Microsoft.Web/sites', variables('appServiceName'))).defaultHostName)]",
+      "metadata": {
+        "description": "URL of the deployed app service"
+      }
+    },
+    "databaseHost": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.DBforPostgreSQL/servers', variables('postgresqlServerName'))).fullyQualifiedDomainName]",
+      "metadata": {
+        "description": "PostgreSQL server hostname"
+      }
+    },
+    "cacheHostName": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Cache/redis', variables('redisCacheName'))).hostName]",
+      "metadata": {
+        "description": "Redis cache hostname"
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "value": "[variables('storageName')]",
+      "metadata": {
+        "description": "Storage account name"
+      }
+    },
+    "appInsightsKey": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName'))).InstrumentationKey]",
+      "metadata": {
+        "description": "Application Insights instrumentation key"
+      }
+    }
+  }
+}

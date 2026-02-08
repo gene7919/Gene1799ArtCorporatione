@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gene1799 - Desktop App</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100vh;
+      display: flex;
+    }
+
+    .container {
+      display: flex;
+      height: 100%;
+      width: 100%;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      margin-bottom: 20px;
+      color: #667eea;
+    }
+
+    .sidebar ul {
+      list-style: none;
+    }
+
+    .sidebar li {
+      padding: 10px;
+      margin: 5px 0;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    .sidebar li:hover {
+      background-color: rgba(102, 126, 234, 0.3);
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+      background-color: rgba(255, 255, 255, 0.95);
+      margin: 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .main-content h1 {
+      color: #667eea;
+      margin-bottom: 20px;
+    }
+
+    .status-box {
+      background-color: #f0f4ff;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+
+    button {
+      background-color: #667eea;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #764ba2;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <h2>🎨 Gene1799</h2>
+      <ul>
+        <li>📊 Dashboard</li>
+        <li>⚙️ Impostazioni</li>
+        <li>📈 Statistiche</li>
+        <li>🔧 Strumenti</li>
+        <li>ℹ️ Info</li>
+      </ul>
+    </div>
+
+    <div class="main-content">
+      <h1>Benvenuto a Gene1799 Desktop App</h1>
+      <p>Questa è l'applicazione desktop del sistema integrato Gene1799 Art Corporation.</p>
+
+      <div class="status-box">
+        <h3>Status Applicazione</h3>
+        <p>✅ Desktop App: Online</p>
+        <p>🔗 Backend: Pronto a connettersi</p>
+        <p>🤖 AI Agent: Disponibile</p>
+      </div>
+
+      <h2>Componenti Disponibili</h2>
+      <ul>
+        <li>Backend API su http://localhost:3000</li>
+        <li>Frontend Web su http://localhost:5173</li>
+        <li>AI Agent System (Python)</li>
+        <li>Database Integration</li>
+      </ul>
+
+      <button onclick="alert('Connessione iniziata!')">Connetti a Backend</button>
+    </div>
+  </div>
+</body>
+</html>

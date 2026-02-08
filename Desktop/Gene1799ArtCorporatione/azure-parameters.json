@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "projectName": {
+      "value": "gene1799"
+    },
+    "environment": {
+      "value": "production"
+    },
+    "location": {
+      "value": "westeurope"
+    },
+    "appServiceTier": {
+      "value": "B2"
+    },
+    "postgresqlVersion": {
+      "value": "14"
+    },
+    "databaseName": {
+      "value": "gene1799db"
+    },
+    "administratorLogin": {
+      "value": "gene1799admin"
+    },
+    "administratorPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/{vaultName}"
+        },
+        "secretName": "postgresqlAdminPassword"
+      }
+    }
+  }
+}

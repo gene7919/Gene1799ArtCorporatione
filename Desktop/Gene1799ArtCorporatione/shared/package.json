@@ -1,0 +1,9 @@
+{
+  "name": "@gene1799/shared",
+  "version": "1.0.0",
+  "description": "Shared utilities and types",
+  "main": "index.ts",
+  "scripts": {
+    "build": "echo 'Build complete'"
+  }
+}

@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # Backend API Service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production-backend
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://user:password@db:5432/gene1799
+      PORT: 3000
+    depends_on:
+      - db
+    networks:
+      - gene1799-network
+
+  # Frontend Web Service
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production-frontend
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    depends_on:
+      - backend
+    networks:
+      - gene1799-network
+
+  # AI Agent Service
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production-agent
+    environment:
+      AGENT_NAME: Gene1799
+      API_HOST: backend
+      API_PORT: 3000
+      PYTHONUNBUFFERED: 1
+    depends_on:
+      - backend
+    networks:
+      - gene1799-network
+
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: gene1799
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - gene1799-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db_data:
+
+networks:
+  gene1799-network:
+    driver: bridge

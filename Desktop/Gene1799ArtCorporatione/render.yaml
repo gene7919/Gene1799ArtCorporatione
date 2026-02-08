@@ -1,0 +1,50 @@
+services:
+  # Backend API Service
+  - type: web
+    name: gene1799-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: npm -w backend run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: gene1799-db
+          property: connectionString
+
+  # Frontend Web Service (Static Site)
+  - type: static
+    name: gene1799-frontend
+    buildCommand: npm install && npm -w frontend run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://gene1799-backend.onrender.com
+
+  # AI Agent Service (Background Worker)
+  - type: web
+    name: gene1799-agent
+    env: python-3.13
+    plan: free
+    buildCommand: cd ai-agent && pip install -r requirements.txt
+    startCommand: cd ai-agent && python main.py
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: true
+      - key: AGENT_DEBUG
+        value: "False"
+      - key: API_HOST
+        value: gene1799-backend
+      - key: API_PORT
+        value: "10000"
+
+# Optional: PostgreSQL Database
+databases:
+  - name: gene1799-db
+    databaseName: gene1799
+    user: gene1799_user
+    plan: free
