@@ -79,9 +79,9 @@ class AzureAIClient:
             )
             self.openai_client = self.client.get_openai_client()
             self.is_connected = True
-            print("✅ Connected to Azure AI Projects")
+            print("[OK] Connected to Azure AI Projects")
         except Exception as e:
-            print(f"❌ Azure AI connection failed: {e}")
+            print(f"[ERROR] Azure AI connection failed: {e}")
             self.is_connected = False
 
     async def query_agent(self, agent_name: str, message: str) -> Dict[str, Any]:
@@ -288,21 +288,21 @@ async def get_status():
 async def startup():
     """Initialize on startup"""
     print("\n" + "="*70)
-    print("🏥 GENE1799 AZURE AI INTEGRATION SERVICE")
+    print("GENE1799 AZURE AI INTEGRATION SERVICE")
     print("="*70)
-    print(f"✅ Service started")
-    print(f"✅ Endpoint: {AZURE_CONFIG['endpoint']}")
-    print(f"✅ Project: {AZURE_CONFIG['project_id']}")
+    print(f"[OK] Service started")
+    print(f"[OK] Endpoint: {AZURE_CONFIG['endpoint']}")
+    print(f"[OK] Project: {AZURE_CONFIG['project_id']}")
     if azure_client.is_connected:
-        print(f"✅ Azure AI: Connected")
+        print(f"[OK] Azure AI: Connected")
     else:
-        print(f"⚠️  Azure AI: Not connected (check credentials)")
+        print(f"[WARN] Azure AI: Not connected (check credentials)")
     print("="*70 + "\n")
 
 @app.on_event("shutdown")
 async def shutdown():
     """Cleanup on shutdown"""
-    print("\n🏥 GENE1799 Azure AI service shutting down...\n")
+    print("\nGENE1799 Azure AI service shutting down...\n")
 
 # ═══════════════════════════════════════════════════════════════════════════
 # MAIN
@@ -310,18 +310,16 @@ async def shutdown():
 
 if __name__ == "__main__":
     print("""
-╔═══════════════════════════════════════════════════════════════════════════╗
-║                                                                           ║
-║    🏥 GENE1799 AZURE AI AGENTS - LOCAL API SERVER 🏥                   ║
-║                                                                           ║
-║    Starting on: http://localhost:8001                                    ║
-║                                                                           ║
-║    Available agents:                                                      ║
-│    • alMedicochelante - Medical AI specialist                            ║
-║                                                                           ║
-║    API Docs: http://localhost:8001/docs                                 ║
-║                                                                           ║
-╚═══════════════════════════════════════════════════════════════════════════╝
+======================================================================
+   GENE1799 AZURE AI AGENTS - LOCAL API SERVER
+
+   Starting on: http://localhost:8001
+
+   Available agents:
+     * alMedicochelante - Medical AI specialist
+
+   API Docs: http://localhost:8001/docs
+======================================================================
     """)
 
     uvicorn.run(

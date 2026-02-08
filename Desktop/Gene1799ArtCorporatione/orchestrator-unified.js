@@ -27,13 +27,13 @@ const { v4: uuidv4 } = require('uuid');
 
 const CONFIG = {
     LOCAL_SERVICES: {
-        ollama: { port: 11434, name: 'OLLAMA (LLM Engine)', type: 'inference' },
-        backend: { port: 3000, name: 'Backend API', type: 'api' },
-        frontend: { port: 5173, name: 'Frontend Dashboard', type: 'ui' },
-        gpu: { port: 4000, name: 'GPU Service', type: 'compute' },
-        mongodb: { port: 27017, name: 'MongoDB', type: 'database' },
-        agent: { port: 8000, name: 'Python AI Agent', type: 'agent' },
-        orchestrator: { port: 5000, name: 'Master Orchestrator', type: 'orchestration' }
+        ollama: { port: 11434, name: 'OLLAMA (LLM Engine)', type: 'inference', healthPath: '/api/tags' },
+        backend: { port: 3000, name: 'Backend API', type: 'api', healthPath: '/health' },
+        frontend: { port: 5173, name: 'Frontend Dashboard', type: 'ui', healthPath: '/' },
+        gpu: { port: 4000, name: 'GPU Service', type: 'compute', healthPath: '/health' },
+        mongodb: { port: 27017, name: 'MongoDB', type: 'database', healthPath: null },
+        agent: { port: 8000, name: 'Python AI Agent', type: 'agent', healthPath: '/health' },
+        orchestrator: { port: 5000, name: 'Master Orchestrator', type: 'orchestration', healthPath: '/health' }
     },
 
     AZURE_SERVICE: {
@@ -142,24 +142,75 @@ class UnifiedOrchestrator extends EventEmitter {
     async checkAllServicesHealth() {
         const checks = [];
 
-        // Check local services
+        // Check local services with per-service health paths
         for (const [key, service] of Object.entries(this.config.LOCAL_SERVICES)) {
-            checks.push(this.checkServiceHealth(key, `http://localhost:${service.port}`));
+            if (service.healthPath === null) {
+                // TCP-only check (e.g. MongoDB)
+                checks.push(this.checkServiceTcp(key, service.port));
+            } else {
+                checks.push(this.checkServiceHealth(key, `http://localhost:${service.port}`, service.healthPath));
+            }
         }
 
         // Check Azure service
-        checks.push(this.checkServiceHealth('azure', this.config.AZURE_SERVICE.endpoint));
+        checks.push(this.checkServiceHealth('azure', this.config.AZURE_SERVICE.endpoint, '/health'));
 
         await Promise.all(checks);
     }
 
     /**
+     * TCP port check for services without HTTP health endpoints (e.g. MongoDB)
+     */
+    async checkServiceTcp(serviceKey, port) {
+        const net = require('net');
+        return new Promise((resolve) => {
+            const startTime = Date.now();
+            const socket = new net.Socket();
+            socket.setTimeout(2000);
+
+            socket.on('connect', () => {
+                const responseTime = Date.now() - startTime;
+                socket.destroy();
+                this.serviceStatus.set(serviceKey, {
+                    ...this.serviceStatus.get(serviceKey),
+                    status: 'healthy',
+                    lastCheck: new Date(),
+                    responseTime
+                });
+                resolve();
+            });
+
+            socket.on('timeout', () => {
+                socket.destroy();
+                this.serviceStatus.set(serviceKey, {
+                    ...this.serviceStatus.get(serviceKey),
+                    status: 'unhealthy',
+                    lastCheck: new Date()
+                });
+                resolve();
+            });
+
+            socket.on('error', () => {
+                socket.destroy();
+                this.serviceStatus.set(serviceKey, {
+                    ...this.serviceStatus.get(serviceKey),
+                    status: 'unhealthy',
+                    lastCheck: new Date()
+                });
+                resolve();
+            });
+
+            socket.connect(port, 'localhost');
+        });
+    }
+
+    /**
      * Check health of a single service
      */
-    async checkServiceHealth(serviceKey, endpoint) {
+    async checkServiceHealth(serviceKey, endpoint, healthPath = '/health') {
         try {
             const startTime = Date.now();
-            const response = await axios.get(`${endpoint}/health`, {
+            const response = await axios.get(`${endpoint}${healthPath}`, {
                 timeout: 3000
             });
             const responseTime = Date.now() - startTime;
@@ -220,7 +271,7 @@ class UnifiedOrchestrator extends EventEmitter {
 
         // Fall back to local Ollama if available
         if (this.serviceStatus.get('ollama')?.status === 'healthy') {
-            return { provider: 'ollama', model: 'mistral' };
+            return { provider: 'ollama', model: 'llama3.2:1b' };
         }
 
         // Last resort: Azure if available
@@ -336,7 +387,7 @@ class UnifiedOrchestrator extends EventEmitter {
     /**
      * Query Local Ollama LLM
      */
-    async queryOllama(query, model = 'mistral') {
+    async queryOllama(query, model = 'llama3.2:1b') {
         try {
             const response = await axios.post(
                 `http://localhost:${this.config.LOCAL_SERVICES.ollama.port}/api/generate`,
