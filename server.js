@@ -7,6 +7,7 @@ const slowDown = require('express-slow-down');
 const winston = require('winston');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
+const { getIntegrationService } = require('./backend/services/integrationService');
 require('dotenv').config();
 
 // Initialize Express app
@@ -20,6 +21,9 @@ const io = new Server(httpServer, {
 });
 
 const PORT = process.env.PORT || 3000;
+
+// Get integration service
+const integrationService = getIntegrationService();
 
 // Configure Winston Logger
 const logger = winston.createLogger({
@@ -76,14 +80,25 @@ app.use((req, res, next) => {
 });
 
 // Health Check Endpoint
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    version: require('./package.json').version,
-    environment: process.env.NODE_ENV || 'development'
-  });
+app.get('/api/health', async (req, res) => {
+  try {
+    const systemHealth = await integrationService.getSystemHealth();
+    res.status(200).json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      version: require('./package.json').version,
+      environment: process.env.NODE_ENV || 'development',
+      systems: systemHealth
+    });
+  } catch (error) {
+    logger.error('Health check error:', error);
+    res.status(503).json({
+      status: 'unhealthy',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Root Endpoint
@@ -152,7 +167,7 @@ app.use((req, res) => {
 });
 
 // Start Server
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, async () => {
   logger.info(`GENE1799 Backend Server running on port ${PORT}`);
   logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
   logger.info(`Health check: http://localhost:${PORT}/api/health`);
@@ -162,11 +177,29 @@ httpServer.listen(PORT, () => {
   if (!fs.existsSync('logs')) {
     fs.mkdirSync('logs', { recursive: true });
   }
+  
+  // Initialize integration service
+  try {
+    await integrationService.initialize();
+    logger.info('Integration service initialized successfully');
+  } catch (error) {
+    logger.error('Integration service initialization failed:', error);
+    logger.warn('Running in Node-only mode');
+  }
 });
 
 // Graceful Shutdown
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
   logger.info('SIGTERM received, shutting down gracefully');
+  
+  // Shutdown integration service
+  try {
+    await integrationService.shutdown();
+    logger.info('Integration service shutdown complete');
+  } catch (error) {
+    logger.error('Integration service shutdown error:', error);
+  }
+  
   httpServer.close(() => {
     logger.info('Server closed');
     process.exit(0);
