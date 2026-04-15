@@ -1,0 +1,6 @@
+{
+  "backendUrl": "http://127.0.0.1:8090",
+  "inputDir": "C:\\Gene1799LegalSign\\shared\\input",
+  "outputDir": "C:\\Gene1799LegalSign\\shared\\output",
+  "logDir": "C:\\Gene1799LegalSign\\shared\\logs"
+}

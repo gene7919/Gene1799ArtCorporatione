@@ -1,0 +1,30 @@
+{
+  "tools": [
+    {
+      "name": "blockchain_rpc_main",
+      "type": "blockchain",
+      "endpoint": "https://rpc-mainnet-placeholder",
+      "healthcheck": {
+        "enabled": false,
+        "interval_sec": 60
+      },
+      "retry": {
+        "max_attempts": 3,
+        "backoff_ms": 500
+      }
+    },
+    {
+      "name": "ipfs_pin_node",
+      "type": "ipfs",
+      "endpoint": "https://ipfs-placeholder",
+      "healthcheck": {
+        "enabled": false,
+        "interval_sec": 60
+      },
+      "retry": {
+        "max_attempts": 3,
+        "backoff_ms": 500
+      }
+    }
+  ]
+}

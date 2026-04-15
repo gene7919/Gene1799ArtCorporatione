@@ -1,0 +1,7 @@
+import { ollamaChat } from "../ai/ollama.service.js";
+
+app.post("/api/ai/chat", authRequired, async (req, res) => {
+  const { prompt } = req.body;
+  const reply = await ollamaChat({ prompt });
+  res.json({ reply });
+});

@@ -1,0 +1,22 @@
+{
+  "environment": {
+    "zone": "eu1",
+    "base_url": "https://eu1.make.com/api"
+  },
+  "auth": {
+    "team_id": "YOUR_TEAM_ID",
+    "api_token": "YOUR_API_TOKEN"
+  },
+  "scenarios": {
+    "example_scenario": {
+      "id": 123,
+      "active": true
+    }
+  },
+  "webhooks": {
+    "example_webhook": "https://hook.eu1.make.com/..."
+  },
+  "actions": {
+    "auto_start": false
+  }
+}

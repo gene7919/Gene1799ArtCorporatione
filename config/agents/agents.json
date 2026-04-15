@@ -1,0 +1,28 @@
+{
+  "agents": [
+    {
+      "name": "gene_rag_bridge",
+      "type": "rag",
+      "capabilities": ["rag_query", "context_injection"],
+      "default_workspace": "default",
+      "enabled": true,
+      "priority": 10
+    },
+    {
+      "name": "gene_rag_core",
+      "type": "planner",
+      "capabilities": ["plan", "route_tasks", "aggregate_results"],
+      "default_workspace": "default",
+      "enabled": true,
+      "priority": 20
+    },
+    {
+      "name": "macae",
+      "type": "devops",
+      "capabilities": ["http_api", "pm2_control", "logs_stream"],
+      "default_workspace": "default",
+      "enabled": true,
+      "priority": 5
+    }
+  ]
+}

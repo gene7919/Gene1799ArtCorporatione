@@ -1,0 +1,12 @@
+{
+  "name": "zora-autopilot",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "main": "revenue-monitor.js",
+  "scripts": {
+    "start": "node revenue-monitor.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}

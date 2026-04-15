@@ -1,0 +1,101 @@
+﻿# dependencies
+node_modules/
+**/node_modules/
+
+# build/output/temp
+dist/
+build/
+out/
+.tmp/
+tmp/
+temp/
+cache/
+__pycache__/
+*.log
+
+# archives / binaries
+*.zip
+*.tar.gz
+*.part.*
+*.exe
+*.dll
+*.cer
+*.p7s
+
+# env / secrets
+.env
+.env.*
+*.env
+
+# backups
+*.bak
+*.bak-*
+*backup*/
+Backups_Inviolabili/
+backup/
+backup_pre_restructure/
+Gene1799-backup/
+Gene1799_backup_*/
+SuiteV17_Backup_*/
+SuiteV17_Unified_backup_*/
+
+# local profiles / generated
+ChromeProfile/
+ChromeProfile_Automation/
+downloads/
+output/
+Outputs/
+agents_output/
+ffmpeg-*/
+ComfyUI/
+AudioCraftEnv/
+AI_MODELS_CLONE/
+
+# python
+*.egg-info/
+
+# OS noise
+Thumbs.db
+Desktop.ini
+# browser profiles / cache / sessioni
+tools/image_collector/chrome_profile*/
+tools/image_collector/downloads_*/
+src/suitev17/ui/ElectronApp/UserData/
+
+# modelli / repo esterni
+src/suitev17/ui/ElectronApp/models/Real-ESRGAN/
+src/suitev17/ui/ElectronApp/models/arxiv2020-RIFE/
+
+# cache e file temporanei
+**/Code Cache/
+**/GPUCache/
+**/GrShaderCache/
+**/GraphiteDawnCache/
+**/DawnGraphiteCache/
+**/DawnWebGPUCache/
+**/Service Worker/
+**/IndexedDB/
+**/Local Storage/
+**/Session Storage/
+**/Network/
+**/Crashpad/
+**/BrowserMetrics/
+**/Safe Browsing/
+
+# log / lock / backup
+*.log
+*.old
+*.tmp
+*.pma
+*.bak
+*.bak_*
+*.ldb
+
+# output locali
+orchestrator/err.txt
+orchestrator/out.txt
+modules/zora-autopilot/last-report.json
+
+# librerie vendorizzate da non committare ora
+lib/
+

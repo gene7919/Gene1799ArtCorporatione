@@ -1,0 +1,11 @@
+{
+  "id": "default",
+  "name": "Default Workspace",
+  "description": "Workspace di default per SuiteV17",
+  "vector_store_path": "C:\\SuiteV17\\workspaces\\default\\vectors",
+  "enabled_agents": [
+    "gene_rag_bridge",
+    "gene_rag_core",
+    "macae"
+  ]
+}
